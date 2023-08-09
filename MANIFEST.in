@@ -1,0 +1,5 @@
+include *.txt
+recursive-include toolbox *.conf
+recursive-include toolbox *.py
+recursive-include toolbox *.service
+recursive-include toolbox *.txt
