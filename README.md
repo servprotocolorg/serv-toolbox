@@ -14,6 +14,20 @@ See our [guides site](https://guides.easynode.pro/serv/toolbox) for more informa
 ## Dev Setup
 Grab serv.sh and run it on your fresh server with the normal harmony pre-requirements installed.
 
+To grab `serv.sh` and setup requirements, run the following:
+
 ```
-cd ~/ && wget -O serv.sh https://raw.githubusercontent.com/ServProtocolOrg/serv-toolbox/main/src/bin/serv.sh && chmod +x serv.sh
+cd ~/ && sudo apt-get install dnsutils git python3-pip python3-dotenv unzip tmux -y && wget -O serv.sh https://raw.githubusercontent.com/ServProtocolOrg/serv-toolbox/main/src/bin/serv.sh && chmod +x serv.sh
+```
+
+Then you can launch the toolbox (Starts installation the first time, loads toolbox after):
+
+```
+./serv.sh
+```
+
+To see all available help options run:
+
+```
+./serv.sh -h
 ```
