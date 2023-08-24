@@ -1,7 +1,7 @@
 [![Discord Badge](https://img.shields.io/badge/chat-discord-purple?logo=discord)](https://discord.gg/Rcz5T6D9CV)
 [![Stake Now Badge](https://img.shields.io/badge/stake-harmony-brightgreen)](https://bit.ly/easynode)
 
-# Harmony Toolbox by [EasyNode.PRO](http://EasyNode.PRO "EasyNode.PRO")
+# SERV Toolbox by [EasyNode.PRO](http://EasyNode.PRO "EasyNode.PRO")
 
 ## Application Repo
 
