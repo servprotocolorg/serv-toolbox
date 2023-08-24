@@ -9,7 +9,7 @@
 
 ## Documentation
 
-See our [guides site](https://guides.easynode.pro/serv/toolbox) for more information (Coming Soon).
+See our [guides site](https://guides.easynode.pro/serv/) for more information (Coming Soon).
 
 ## Dev Setup
 Grab serv.sh and run it on your fresh server with the normal harmony pre-requirements installed.
