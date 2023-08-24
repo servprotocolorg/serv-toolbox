@@ -85,44 +85,55 @@ def loader_intro():
                                                                                                         
     """
     print(p)
+    return
 
 
-# Install SERV
+def old_toolbox_check():
+    if os.path.exists(f"{EnvironmentVariables.user_home_dir}/validatortoolbox"):
+        print(
+            Fore.GREEN
+            + f"{string_stars()}\n* Old folder found, Exiting toolbox.\n*\n* Please renmae your ~/validatortoolbox folder to ~/harmony-toolbox and update your command paths!\n*\n* Run: cd ~/ && mv ~/validatortoolbox ~/harmony-toolbox\n*\n* After you run the move command, relaunch with: python3 ~/harmony-toolbox/src/menu.py\n*{string_stars()}"
+        )
+        raise SystemExit(0)
+
+
+# Install Harmony ONE
 def update_hmy_binary():
-    load_var_file(EnvironmentVariables.dotenv_file)
-    hmy_dir = environ.get("SERV_DIR")
-    ### Need download_url here for SERV
+    load_dotenv(EnvironmentVariables.dotenv_file)
+    hmy_dir = environ.get("HARMONY_DIR")
     download_url = "https://harmony.one/hmycli"
-    destination_path = f"{hmy_dir}/servwallet"
+    destination_path = f"{hmy_dir}/hmy"
 
-    try:
-        # Download the hmycli
-        response = requests.get(download_url, stream=True)
-        response.raise_for_status()
+    if os.path.isfile(EnvironmentVariables.hmy_tmp_path):
+        process_command(f"cp {EnvironmentVariables.hmy_tmp_path} {destination_path}")
+    else:
+        try:
+            # Download the hmycli
+            response = requests.get(download_url, stream=True)
+            response.raise_for_status()
 
-        # Save the downloaded content to the destination path
-        with open(destination_path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=8192):
-                file.write(chunk)
+            # Save the downloaded content to the destination path
+            with open(destination_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
 
-        # Set execute permissions
-        os.chmod(destination_path, 0o755)
+            # Set execute permissions
+            os.chmod(destination_path, 0o755)
+        except requests.RequestException as e:
+            print(f"* Error while downloading hmy using requests: {e}")
 
-        # Get version string
-        software_versions = version_checks(hmy_dir)
+        except OSError as e:
+            print(f"* Error while saving or setting permissions for hmy: {e}")
 
-        if software_versions:
-            print(f"* hmy application installed.")
-            return software_versions
-        else:
-            print(f"* Version Check Failed.")
-            return None
+    # Get version string
+    software_versions = version_checks(hmy_dir)
 
-    except requests.RequestException as e:
-        print(f"* Error while downloading hmy using requests: {e}")
-
-    except OSError as e:
-        print(f"* Error while saving or setting permissions for hmy: {e}")
+    if software_versions:
+        print(f"* hmy application installed.")
+        return software_versions
+    else:
+        print(f"* Version Check Failed.")
+        return None
 
 
 # Code to update the harmony.conf after an upgrade and other text files.
@@ -149,7 +160,7 @@ def recover_wallet():
         recovery_type()
         load_var_file(EnvironmentVariables.dotenv_file)
         print(
-            f'\n* Verify the address above matches the address below:\n* Detected Wallet: {Fore.YELLOW}{environ.get("VALIDATOR_WALLET")}{Fore.GREEN}\n* If a different wallet is showing you can remove it and retry it after installation.\n*\n* .{environ.get("SERV_DIR")}/servwallet keys remove {EnvironmentVariables.active_user}\n*\n* To restore a wallet once again, run the following:\n*\n* .{environ.get("SERV_DIR")}/servwallet keys recover-from-mnemonic {EnvironmentVariables.active_user} {environ.get("PASS_SWITCH")}\n{string_stars()}'
+            f'\n* Verify the address above matches the address below:\n* Detected Wallet: {Fore.YELLOW}{environ.get("VALIDATOR_WALLET")}{Fore.GREEN}\n* If a different wallet is showing you can remove it and retry it after installation.\n*\n* .{environ.get("HARMONY_DIR")}/hmy keys remove {EnvironmentVariables.active_user}\n*\n* To restore a wallet once again, run the following:\n*\n* .{environ.get("HARMONY_DIR")}/hmy keys recover-from-mnemonic {EnvironmentVariables.active_user} {environ.get("PASS_SWITCH")}\n{string_stars()}'
         )
         input("* Verify your wallet information above.\n* Press ENTER to continue Installation.")
     else:
@@ -171,17 +182,24 @@ def recover_wallet():
 
 
 def update_harmony_binary():
-    serv_dir = environ.get("SERV_DIR")
-    os.chdir(f"{serv_dir}")
-    process_command("curl -LO https://harmony.one/binary && mv binary harmony && chmod +x harmony")
+    harmony_dir = environ.get("HARMONY_DIR")
+    os.chdir(f"{harmony_dir}")
+    if os.path.isfile(f"{EnvironmentVariables.harmony_tmp_path}/harmony"):
+        process_command(f"cp /tmp/harmony {harmony_dir}")
+    else:
+        process_command("curl -LO https://harmony.one/binary && mv binary harmony && chmod +x harmony")
     process_command("./harmony config dump harmony.conf")
-    update_text_file(f"{serv_dir}/harmony.conf", "MaxKeys = 10", "MaxKeys = 13")
-    update_text_file(f"{serv_dir}/harmony.conf", " DisablePrivateIPScan = false", " DisablePrivateIPScan = true")
-    print(f"* harmony.conf MaxKeys modified to 13 & DisablePrivateIPScan set to true.")
-    if os.path.isfile(f"{serv_dir}/blskey.pass"):
-        update_text_file(f"{serv_dir}/harmony.conf", 'PassFile = ""', 'PassFile = "blskey.pass"')
-        print("* blskey.pass found, updated harmony.conf")
-    print(f"* Harmony binary installed & {serv_dir}/harmony.conf created. ")
+    update_text_file(f"{harmony_dir}/harmony.conf", "MaxKeys = 10", "MaxKeys = 13")
+    update_text_file(f"{harmony_dir}/harmony.conf", " DisablePrivateIPScan = false", " DisablePrivateIPScan = true")
+    if os.path.isfile(f"{harmony_dir}/blskey.pass"):
+        update_text_file(f"{harmony_dir}/harmony.conf", 'PassFile = ""', 'PassFile = "blskey.pass"')
+        print(
+            f"* Harmony binary installed, {harmony_dir}/harmony.conf created and modified: 13 max keys, blskey.pass file, disabled private ip scan. "
+        )
+    else:
+        print(
+            f"* Harmony binary installed, {harmony_dir}/harmony.conf created and modified: 13 max keys, disabled private ip scan. "
+        )
     return
 
 
@@ -206,7 +224,6 @@ def get_folders():
             port = find_port(f"{EnvironmentVariables.user_home_dir}/{f}")
             folders[f"{f}"] = port
             print(f"* Found ~/{f} folder, on port {port}")
-    print_stars()
     return folders
 
 
@@ -217,7 +234,7 @@ def process_folder(folder, port):
     software_versions = version_checks(current_full_path)
     try:
         local_server = [
-            f"{EnvironmentVariables.user_home_dir}/{folder}/servwallet",
+            f"{current_full_path}/hmy",
             "utility",
             "metadata",
             f"--node=http://localhost:{port}",
@@ -225,7 +242,7 @@ def process_folder(folder, port):
         result_local_server = run(local_server, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         local_data = json.loads(result_local_server.stdout)
         remote_server = [
-            f"{EnvironmentVariables.user_home_dir}/{folder}/servwallet",
+            f"{current_full_path}/hmy",
             "utility",
             "metadata",
             f"--node=https://api.s{local_data['result']['shard-id']}.t.hmny.io",
@@ -262,7 +279,7 @@ def validator_stats_output() -> None:
     validator_wallet_balance = get_wallet_balance(environ.get("VALIDATOR_WALLET"))
     # Print Menu
     print(
-        f"{Fore.GREEN}{string_stars()}\n* serv-toolbox for {Fore.CYAN}SERV{Fore.GREEN} Validators by Easy Node   v{EnvironmentVariables.easy_version}{Style.RESET_ALL}{Fore.WHITE}   https://easynode.pro {Fore.GREEN}*"
+        f"{Fore.GREEN}{string_stars()}\n* harmony-toolbox for {Fore.CYAN}Harmony ONE{Fore.GREEN} Validators by Easy Node   v{EnvironmentVariables.easy_version}{Style.RESET_ALL}{Fore.WHITE}   https://easynode.pro {Fore.GREEN}*"
     )
     print(
         f'{string_stars()}\n* Your validator wallet address is: {Fore.RED}{str(environ.get("VALIDATOR_WALLET"))}{Fore.GREEN}\n* Your $ONE balance is:             {Fore.CYAN}{str(round(validator_wallet_balance, 2))}{Fore.GREEN}\n* Your pending $ONE rewards are:    {Fore.CYAN}{str(round(get_rewards_balance(config.working_rpc_endpoint, environ.get("VALIDATOR_WALLET")), 2))}{Fore.GREEN}\n* Server Hostname & IP:             {EnvironmentVariables.server_host_name} - {Fore.YELLOW}{EnvironmentVariables.external_ip}{Fore.GREEN}'
@@ -276,7 +293,7 @@ def validator_stats_output() -> None:
         f"* CPU Load Averages: {round(load_1, 2)} over 1 min, {round(load_5, 2)} over 5 min, {round(load_15, 2)} over 15 min\n{string_stars()}"
     )
     remote_shard_0 = [
-        f"{EnvironmentVariables.user_home_dir}/{list(folders.items())[0][0]}/servwallet",
+        f"{EnvironmentVariables.user_home_dir}/{list(folders.items())[0][0]}/hmy",
         "utility",
         "metadata",
         "--node=https://api.s0.t.hmny.io",
@@ -323,7 +340,7 @@ def set_wallet_env():
     load_var_file(EnvironmentVariables.dotenv_file)
     if os.path.exists(EnvironmentVariables.hmy_wallet_store):
         output = subprocess.getoutput(
-            f"{environ.get('SERV_DIR')}/servwallet keys list | grep {EnvironmentVariables.active_user}"
+            f"{environ.get('HARMONY_DIR')}/hmy keys list | grep {EnvironmentVariables.active_user}"
         )
         output_stripped = output.lstrip(EnvironmentVariables.active_user)
         output_stripped = output_stripped.strip()
@@ -334,10 +351,10 @@ def set_wallet_env():
         return validator_wallet
 
 
-def get_db_size(serv_dir, our_shard) -> str:
-    harmony_db_size = subprocess.getoutput(f"du -h {serv_dir}/harmony_db_{our_shard}")
+def get_db_size(harmony_dir, our_shard) -> str:
+    harmony_db_size = subprocess.getoutput(f"du -h {harmony_dir}/harmony_db_{our_shard}")
     harmony_db_size = harmony_db_size.rstrip("\t")
-    countTrim = len(environ.get("SERV_DIR")) + 13
+    countTrim = len(environ.get("HARMONY_DIR")) + 13
     return harmony_db_size[:-countTrim]
 
 
@@ -361,30 +378,29 @@ def recovery_type():
     passphrase_set()
     if results == 0:
         # Mnemonic Recovery Here
-        # --passphrase-file passphrase.txt not working atm on ./servwallet keys
+        # --passphrase-file passphrase.txt not working atm on ./hmy keys
         run_command(
-            f"{environ.get('SERV_DIR')}/servwallet keys recover-from-mnemonic {EnvironmentVariables.active_user} --passphrase"
+            f"{environ.get('HARMONY_DIR')}/hmy keys recover-from-mnemonic {EnvironmentVariables.active_user} --passphrase"
         )
         set_wallet_env()
     elif results == 1:
         # Private Key Recovery Here
         print("* Private key recovery requires your private information in the command itself.")
         private = getpass.getpass("* Please enter your private key to restore your wallet: ")
-        # --passphrase-file passphrase.txt not working atm on ./servwallet keys
+        # --passphrase-file passphrase.txt not working atm on ./hmy keys
         run_command(
-            f"{environ.get('SERV_DIR')}/servwallet keys import-private-key {private} {EnvironmentVariables.active_user} --passphrase"
+            f"{environ.get('HARMONY_DIR')}/hmy keys import-private-key {private} {EnvironmentVariables.active_user} --passphrase"
         )
         set_wallet_env()
 
 
 def passphrase_status():
-    load_var_file(EnvironmentVariables.dotenv_file)
     if os.path.exists(EnvironmentVariables.hmy_wallet_store):
         passphrase_set()
         set_var(
             EnvironmentVariables.dotenv_file,
             "PASS_SWITCH",
-            f"--passphrase-file {environ.get('SERV_DIR')}/passphrase.txt",
+            f"--passphrase-file {environ.get('HARMONY_DIR')}/passphrase.txt",
         )
     else:
         set_var(EnvironmentVariables.dotenv_file, "PASS_SWITCH", "--passphrase")
@@ -392,11 +408,11 @@ def passphrase_status():
 
 
 def passphrase_set():
-    if os.path.exists(f"{environ.get('SERV_DIR')}/passphrase.txt"):
+    if os.path.exists(f"{environ.get('HARMONY_DIR')}/passphrase.txt"):
         return
 
     print(
-        f"{Fore.GREEN}* Setup {environ.get('SERV_DIR')}/passphrase.txt file for use with autobidder & harmony-toolbox.\n{string_stars()}"
+        f"{Fore.GREEN}* Setup {environ.get('HARMONY_DIR')}/passphrase.txt file for use with autobidder & harmony-toolbox.\n{string_stars()}"
     )
     # take input
     while True:
@@ -411,7 +427,7 @@ def passphrase_set():
             print("* Passwords Match!")
             break
     # Save file, we won't encrypt because if someone has access to the file, they will also have the salt and decrypt code at their disposal.
-    save_text(f"{environ.get('SERV_DIR')}/passphrase.txt", password_1)
+    save_text(f"{environ.get('HARMONY_DIR')}/passphrase.txt", password_1)
     load_var_file(EnvironmentVariables.dotenv_file)
     passphrase_status()
 
@@ -476,7 +492,7 @@ def return_txt(fn: str) -> list:
 
 def load_var_file(var_file):
     if os.path.exists(var_file):
-        load_var_file(var_file, override=True)
+        load_dotenv(var_file, override=True)
         return False
     else:
         subprocess.run(["touch", var_file])
@@ -484,7 +500,7 @@ def load_var_file(var_file):
 
 
 def get_validator_wallet_name(wallet_id):
-    command = f"{environ.get('SERV_DIR')}/servwallet keys list"
+    command = f"{environ.get('HARMONY_DIR')}/hmy keys list"
     result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     if result.returncode != 0:
@@ -588,7 +604,7 @@ def get_vote_choice() -> (int, str):
         "[3] - Abstain",
         "[4] - Quit",
     ]
-    terminal_menu = TerminalMenu(menu_options, title="* Which Shard will this node operate on? ")
+    terminal_menu = TerminalMenu(menu_options, title="* Please choose your voting option. ")
     vote_choice_index = terminal_menu.show()
     if vote_choice_index == 3:  # The index of the "Quit" option
         return None, "Quit"
@@ -605,10 +621,10 @@ def get_available_space(directory: str) -> int:
 
 def check_space_requirements(shard: int, directory: str) -> bool:
     available_space = get_available_space(directory)
-    if shard == 0 and available_space < 400:
+    if shard == 0 and available_space < 50:
         if not os.listdir(directory):
             shutil.rmtree(f"{directory}")
-        os.remove(f"{EnvironmentVariables.user_home_dir}/.serv.env")
+        os.remove(f"{EnvironmentVariables.user_home_dir}/.servproto.env")
         input(
             f"* Warning: There is not enough space to load shard 0 into {directory}.\n* Restart the toolbox and select a volume with more free space when prompted on the install location.\n* Press ENTER to quit."
         )
@@ -616,7 +632,7 @@ def check_space_requirements(shard: int, directory: str) -> bool:
     elif shard in [1, 2, 3] and available_space < 50:
         if not os.listdir(directory):
             shutil.rmtree(f"{directory}")
-        os.remove(f"{EnvironmentVariables.user_home_dir}/.serv.env")
+        os.remove(f"{EnvironmentVariables.user_home_dir}/.servproto.env")
         input(
             f"* Warning: There is not enough space to load shard {shard} into {directory}.\n* Restart the toolbox and select a volume with more free space when prompted on the install location.\n* Press ENTER to quit."
         )
@@ -626,18 +642,8 @@ def check_space_requirements(shard: int, directory: str) -> bool:
 
 def get_shard_menu() -> None:
     if not environ.get("SHARD"):
-        print(f"{string_stars()}\n* Gathering more information about your server.\n{string_stars()}")
-        print(f"* Which shard do you want this node to sign blocks on?\n{string_stars()}")
-        menu_options = [
-            "[0] - Shard 0",
-            "[1] - Shard 1",
-            "[2] - Shard 2",
-            "[3] - Shard 3",
-        ]
-        terminal_menu = TerminalMenu(menu_options, title="* Which Shard will this node sign blocks on? ")
-        our_shard = int(terminal_menu.show())
-
-        set_var(EnvironmentVariables.dotenv_file, "SHARD", str(our_shard))
+        our_shard = "0"
+        set_var(EnvironmentVariables.dotenv_file, "SHARD", our_shard)
         return our_shard
 
 
@@ -670,7 +676,7 @@ def get_wallet_address():
     print(
         f"* If you would like to use the menu on the server, complete the following:                  *\n{string_stars()}"
     )
-    print("* Edit ~/.serv.env and add your wallet address on a new line like this example:         *")
+    print("* Edit ~/.servproto.env and add your wallet address on a new line like this example:         *")
     print(
         f"* VALIDATOR_WALLET='one1thisisjustanexamplewalletreplaceme'                                 *\n{string_stars()}"
     )
@@ -751,7 +757,7 @@ def return_json(fn: str, single_key: str = None) -> dict:
 
 def get_sign_pct() -> str:
     config = EnvironmentVariables()
-    hmy_external_rpc = f"{environ.get('SERV_DIR')}/servwallet --node='{config.working_rpc_endpoint}'"
+    hmy_external_rpc = f"{environ.get('HARMONY_DIR')}/hmy --node='{config.working_rpc_endpoint}'"
     output = subprocess.getoutput(
         f"{hmy_external_rpc} blockchain validator information {environ.get('VALIDATOR_WALLET')} | grep signing-percentage"
     )
@@ -767,56 +773,69 @@ def get_sign_pct() -> str:
 
 
 def get_local_version(folder):
-    output_harmony_version = None
+    harmony_version = None
     hmy_version = None
 
-    if os.path.exists(f"{folder}/harmony"):
+    if os.path.isfile(f"{folder}/harmony"):
         harmony_version = subprocess.getoutput(f"{folder}/harmony -V")
         match = re.search(r"version (v\d+-v\d+\.\d+\.\d+-\d+-g[0-9a-f]+ )\(", harmony_version)
         if match:
-            output_harmony_version = match.group(1)[:-2]
+            harmony_version = match.group(1)[:-2]
 
-    if os.path.exists(f"{folder}/servwallet"):
-        hmy_version_raw = subprocess.getoutput(f"{folder}/servwallet version")
+    if os.path.isfile(f"{folder}/hmy"):
+        hmy_version_raw = subprocess.getoutput(f"{folder}/hmy version")
         hmy_version = hmy_version_raw[62:-15]
 
-    if not output_harmony_version or not hmy_version:
+    if not harmony_version or not hmy_version:
         return None
 
-    return output_harmony_version, hmy_version
+    return harmony_version, hmy_version
 
 
 def set_mod_x(file):
     subprocess.run(["chmod", "+x", file])
 
 
-### Update section when our downloads are available.
 def check_online_version():
+    print(f"{string_stars()}\n* Checking online version of harmony & hmy...")
     harmony_version_str = "Offline"
     hmy_ver = "Offline"
     try:
-        with open(os.devnull, "wb") as devnull:
-            subprocess.call(
-                ["wget", "https://harmony.one/binary", "-O", EnvironmentVariables.harmony_tmp_path],
-                stdout=devnull,
-                stderr=devnull,
-            )
-            set_mod_x(EnvironmentVariables.harmony_tmp_path)
-            harmony_ver = subprocess.getoutput(f"{EnvironmentVariables.harmony_tmp_path} -V")
-            output_harmony_version = re.search(r"version (v\d+-v\d+\.\d+\.\d+-\d+-g[0-9a-f]+ )\(", harmony_ver)
-            harmony_version_str = output_harmony_version.group(1)[:-2]
-            subprocess.call(
-                ["wget", "https://harmony.one/hmycli", "-O", EnvironmentVariables.hmy_tmp_path],
-                stdout=devnull,
-                stderr=devnull,
-            )
-            set_mod_x(EnvironmentVariables.hmy_tmp_path)
-            hmy_ver = subprocess.getoutput(f"{EnvironmentVariables.hmy_tmp_path} version")
-            hmy_ver = hmy_ver[62:-15]
-            return harmony_version_str, hmy_ver
+        # Check if the harmony binary exists before downloading
+        if not os.path.exists(EnvironmentVariables.harmony_tmp_path):
+            with open(os.devnull, "wb") as devnull:
+                subprocess.call(
+                    ["wget", "https://harmony.one/binary", "-O", EnvironmentVariables.harmony_tmp_path],
+                    stdout=devnull,
+                    stderr=devnull,
+                )
+                set_mod_x(EnvironmentVariables.harmony_tmp_path)
+
+        # Get harmony version
+        harmony_ver = subprocess.getoutput(f"{EnvironmentVariables.harmony_tmp_path} -V")
+        output_harmony_version = re.search(r"version (v\d+-v\d+\.\d+\.\d+-\d+-g[0-9a-f]+ )\(", harmony_ver)
+        harmony_version_str = output_harmony_version.group(1)[:-2]
+        set_var(EnvironmentVariables.dotenv_file, "ONLINE_HARMONY_VERSION", harmony_version_str)
+
+        # Check if the hmycli binary exists before downloading
+        if not os.path.exists(EnvironmentVariables.hmy_tmp_path):
+            with open(os.devnull, "wb") as devnull:
+                subprocess.call(
+                    ["wget", "https://harmony.one/hmycli", "-O", EnvironmentVariables.hmy_tmp_path],
+                    stdout=devnull,
+                    stderr=devnull,
+                )
+                set_mod_x(EnvironmentVariables.hmy_tmp_path)
+
+        # Get hmy version
+        hmy_ver = subprocess.getoutput(f"{EnvironmentVariables.hmy_tmp_path} version")
+        hmy_ver = hmy_ver[62:-15]
+        set_var(EnvironmentVariables.dotenv_file, "ONLINE_HMY_VERSION", hmy_ver)
+
+        return
     except (AttributeError, subprocess.CalledProcessError):
         # print("* Error - Website for hmy upgrade is offline, setting to offline.")
-        return harmony_version_str, hmy_ver
+        return
 
 
 def first_env_check(env_file) -> None:
@@ -827,21 +846,24 @@ def first_env_check(env_file) -> None:
 def version_checks(harmony_folder):
     software_versions = {}
     local_versions = get_local_version(f"{harmony_folder}")
-    online_versions = check_online_version()
 
     # Check if the local versions exist. If not, set to a default value.
-    software_versions["harmony_version"] = local_versions[0] if local_versions else "Not Found"
-    software_versions["hmy_version"] = local_versions[1] if local_versions else "Not Found"
+    software_versions["harmony_version"] = local_versions[0] if local_versions else "Offline"
+    software_versions["hmy_version"] = local_versions[1] if local_versions else "Offline"
 
     # Check if the online versions exist. If not, set to a default value.
-    software_versions["online_harmony_version"] = online_versions[0] if online_versions else "Not Found"
-    software_versions["online_hmy_version"] = online_versions[1] if online_versions else "Not Found"
+    software_versions["online_harmony_version"] = (
+        environ.get("ONLINE_HARMONY_VERSION") if environ.get("ONLINE_HARMONY_VERSION") else "Offline"
+    )
+    software_versions["online_hmy_version"] = (
+        environ.get("ONLINE_HMY_VERSION") if environ.get("ONLINE_HMY_VERSION") else "Offline"
+    )
 
     # Check versions, if matching False (No Upgrade Required), non-match True (Upgrade Required)
     if (
         software_versions["harmony_version"] == software_versions["online_harmony_version"]
         or software_versions["online_harmony_version"] == "Offline"
-        or software_versions["harmony_version"] == "Not Found"
+        or software_versions["harmony_version"] == "Offline"
     ):
         software_versions["harmony_upgrade"] = "False"
     else:
@@ -850,7 +872,7 @@ def version_checks(harmony_folder):
     if (
         software_versions["hmy_version"] == software_versions["online_hmy_version"]
         or software_versions["online_hmy_version"] == "Offline"
-        or software_versions["hmy_version"] == "Not Found"
+        or software_versions["hmy_version"] == "Offline"
     ):
         software_versions["hmy_upgrade"] = "False"
     else:
@@ -882,9 +904,7 @@ def check_for_install() -> str:
             # Check passphrase if wallet is added
             passphrase_status()
             print(f"* All harmony files now installed. Database download starting now...\n{string_stars()}")
-            ### Removing clone_shards() as data is not the same on harmony. Will update when we have db download.
-            # clone_shards()
-            print(f"* Just kidding, no databases yet!")
+            clone_shards()
             finish_node_install()
         else:
             if os.path.isdir(f"{EnvironmentVariables.user_home_dir}/harmony"):
@@ -904,9 +924,7 @@ def check_for_install() -> str:
         # Check passphrase if wallet is added
         passphrase_status()
         print(f"* All harmony files now installed. Database download starting now...\n{string_stars()}")
-        ### Removing clone_shards() as data is not the same on harmony. Will update when we have db download.
-        # clone_shards()
-        print(f"* Just kidding, no databases yet!")
+        clone_shards()
         finish_node_install()
     return
 
@@ -941,9 +959,9 @@ def install_rclone():
 def install_harmony() -> None:
     while True:
         print(f"{string_stars()}\n* Install Location\n{string_stars()}")
-        default_path = f"{EnvironmentVariables.user_home_dir}/serv"
+        default_path = f"{EnvironmentVariables.user_home_dir}/harmony"
         question = ask_yes_no(
-            f"* Do you want to setup SERV in the default location?\n* {default_path}\n* "
+            f"* Do you want to setup harmony in the default location?\n* {default_path}\n* "
             "Or select 'No' to choose a custom folder (for a volume or 2nd disk setup): (YES/NO) "
         )
         if question:
@@ -953,8 +971,8 @@ def install_harmony() -> None:
             break
         else:
             custom_path = input(
-                "\n* Please enter the full path to a location you'd like to install SERV into.\n* "
-                "We suggest using your shard number at the end of SERV for compatibility with toolbox, ie: /home/serviceserv/serv0 : "
+                "\n* Please enter the full path to a location you'd like to install harmony into.\n* "
+                "We suggest using your shard number at the end of harmony for compatability with toolbox, ie: /home/serviceharmony/harmony1 : "
             )
             if os.path.exists(custom_path):
                 question = ask_yes_no(
@@ -974,7 +992,7 @@ def install_harmony() -> None:
                     break
 
     # Save envs
-    set_var(EnvironmentVariables.dotenv_file, "SERV_DIR", install_path)
+    set_var(EnvironmentVariables.dotenv_file, "HARMONY_DIR", install_path)
     set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", service_name)
 
     # Create the directory if not exists, and set ownership
@@ -991,17 +1009,16 @@ def install_harmony() -> None:
     # Setup folders now that symlink exists or we know we're using ~/harmony
     if not os.path.isdir(f"{EnvironmentVariables.user_home_dir}/.hmy_cli/account-keys/"):
         process_command(f"mkdir -p {EnvironmentVariables.user_home_dir}/.hmy_cli/account-keys/")
-    if not os.path.isdir(f"{environ.get('SERV_DIR')}/.hmy/blskeys"):
-        process_command(f"mkdir -p {environ.get('SERV_DIR')}/.hmy/blskeys")
+    if not os.path.isdir(f"{environ.get('HARMONY_DIR')}/.hmy/blskeys"):
+        process_command(f"mkdir -p {environ.get('HARMONY_DIR')}/.hmy/blskeys")
     # Change to ~/harmony folder
-    os.chdir(f"{environ.get('SERV_DIR')}")
+    os.chdir(f"{environ.get('HARMONY_DIR')}")
     # Install hmy
     update_hmy_binary()
     # Install harmony
     update_harmony_binary()
     # install hmy files
     print(f"* Installing rclone application & rclone configuration files")
-    ### Might not need rclone depending on our solution for db downloads
     # check for working rclone site and download
     try:
         install_rclone()
@@ -1028,10 +1045,10 @@ def install_harmony() -> None:
     with open(service_file_path, "r") as file:
         filedata = file.read()
 
-    # Replace the paths with the value of SERV_DIR
-    filedata = filedata.replace("WorkingDirectory=/home/serviceserv/harmony", f"WorkingDirectory={install_path}")
+    # Replace the paths with the value of HARMONY_DIR
+    filedata = filedata.replace("WorkingDirectory=/home/serviceharmony/harmony", f"WorkingDirectory={install_path}")
     filedata = filedata.replace(
-        "ExecStart=/home/serviceserv/harmony/harmony -c harmony.conf",
+        "ExecStart=/home/serviceharmony/harmony/harmony -c harmony.conf",
         f"ExecStart={install_path}/harmony -c harmony.conf",
     )
 
@@ -1045,35 +1062,21 @@ def install_harmony() -> None:
     subprocess.run(["sudo", "systemctl", "enable", f"{service_name}.service"], check=True)
 
 
-### Will need updating when we have db downloads
 # Database Downloader
 def clone_shards():
-    load_var_file(EnvironmentVariables.dotenv_file)
+    load_dotenv(EnvironmentVariables.dotenv_file)
     # Move to ~/harmony
-    os.chdir(f"{environ.get('SERV_DIR')}")
+    os.chdir(f"{environ.get('HARMONY_DIR')}")
 
-    if environ.get("SHARD") != "0":
-        # If we're not on shard 0, download the numbered shard DB here.
-        print(f"* Now cloning shard {environ.get('SHARD')}\n{string_stars()}")
-        run_command(
-            f"rclone -P sync release:pub.harmony.one/{environ.get('NETWORK')}.min/harmony_db_{environ.get('SHARD')} {environ.get('SERV_DIR')}/harmony_db_{environ.get('SHARD')} --multi-thread-streams 4 --transfers=32"
-        )
-        print(
-            f"{string_stars()}\n* Shard {environ.get('SHARD')} completed.\n* Shard 0 will be created when you start your service.\n{string_stars()}"
-        )
-    else:
-        # If we're on shard 0, grab the snap DB here.
-        print(f"* Now cloning Shard 0, kick back and relax for awhile...\n{string_stars()}")
-        run_command(
-            f"rclone -P -L --checksum sync release:pub.harmony.one/{environ.get('NETWORK')}.snap/harmony_db_0 {environ.get('SERV_DIR')}/harmony_db_0 --multi-thread-streams 4 --transfers=32"
-        )
+    print(f"* No database yet, making harmony_db_0...\n{string_stars()}")
+    run_command(f"mkdir -p {environ.get('HARMONY_DIR')}/harmony_db_0")
 
 
 def finish_node_install():
     load_var_file(EnvironmentVariables.dotenv_file)
     print(
         f"{string_stars()}\n* Installation is completed"
-        + "\n* Create a new wallet or recover your existing wallet into ./servwallet"
+        + "\n* Create a new wallet or recover your existing wallet into ./hmy"
         + "\n* Create or upload your bls key & pass files into ~/harmony/.hmy/blskeys"
         + f"\n* Finally, reboot to start synchronization.\n{string_stars()}"
     )
@@ -1084,7 +1087,7 @@ def finish_node_install():
             + "\n* python3 ~/harmony-toolbox/load_wallet.py"
             + "\n*"
             + "\n* To create BLS keys run:"
-            + f'\n* {environ.get("SERV_DIR")}/servwallet keys generate-bls-keys --count 1 --shard {environ.get("SHARD")} --passphrase'
+            + f'\n* {environ.get("HARMONY_DIR")}/hmy keys generate-bls-keys --count 1 --shard {environ.get("SHARD")} --passphrase'
             + f"\n*\n{string_stars()}"
         )
     else:
@@ -1094,7 +1097,7 @@ def finish_node_install():
             + "\n* python3 ~/harmony-toolbox/load_wallet.py"
             + "\n*"
             + "\n* To create BLS keys run:"
-            + f'\n* {environ.get("SERV_DIR")}/servwallet keys generate-bls-keys --count 1 --shard {environ.get("SHARD")} {environ.get("PASS_SWITCH")}'
+            + f'\n* {environ.get("HARMONY_DIR")}/hmy keys generate-bls-keys --count 1 --shard {environ.get("SHARD")} {environ.get("PASS_SWITCH")}'
             + f"\n*\n{string_stars()}"
         )
     print(f"* Thanks for using Easy Node - Validator Node Server Software Installer!\n{string_stars()}")
@@ -1102,25 +1105,25 @@ def finish_node_install():
 
 
 def free_space_check(mount) -> str:
-    ourDiskMount = get_serv_dir_from_path(mount)
+    ourDiskMount = get_harmony_dir_from_path(mount)
     _, _, free = shutil.disk_usage(ourDiskMount)
     freeConverted = str(converted_unit(free))
     return freeConverted
 
 
 def free_space_size(mount) -> str:
-    ourDiskMount = get_serv_dir_from_path(mount)
+    ourDiskMount = get_harmony_dir_from_path(mount)
     _, _, free = shutil.disk_usage(ourDiskMount)
     return free
 
 
 def server_drive_check(dot_env, directory) -> None:
-    if environ.get("SERV_DIR") is not None:
-        ourDiskMount = environ.get("SERV_DIR")
+    if environ.get("HARMONY_DIR") is not None:
+        ourDiskMount = environ.get("HARMONY_DIR")
     else:
-        dotenv.set_key(dot_env, "SERV_DIR", directory)
+        dotenv.set_key(dot_env, "HARMONY_DIR", directory)
         load_var_file(dot_env)
-        ourDiskMount = environ.get("SERV_DIR")
+        ourDiskMount = environ.get("HARMONY_DIR")
     print_stars()
     print("Here are all of your mount points: ")
     for part in disk_partitions():
@@ -1171,16 +1174,16 @@ def disk_partitions(all=False):
     return retlist
 
 
-def get_serv_dir_from_path(pathname):
+def get_harmony_dir_from_path(pathname):
     pathname = os.path.normcase(os.path.realpath(pathname))
     parent_device = path_device = os.stat(pathname).st_dev
     while parent_device == path_device:
-        SERV_DIR = pathname
+        HARMONY_DIR = pathname
         pathname = os.path.dirname(pathname)
-        if pathname == SERV_DIR:
+        if pathname == HARMONY_DIR:
             break
         parent_device = os.stat(pathname).st_dev
-    return SERV_DIR
+    return HARMONY_DIR
 
 
 def refreshing_stats_message() -> str:

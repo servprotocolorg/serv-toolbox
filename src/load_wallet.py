@@ -4,7 +4,7 @@ from toolbox.library import loader_intro, set_wallet_env, ask_yes_no, print_star
 
 if __name__ == "__main__":
     loader_intro()
-    print("* SERV Validator Wallet Import")
+    print("* Harmony ONE Validator Wallet Import")
     print_stars()
     question = ask_yes_no(
         "\n* You will directly utilize the harmony application interface"

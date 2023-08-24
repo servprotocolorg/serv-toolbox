@@ -2,7 +2,7 @@ import socket, requests, json
 from os import environ, path
 from dotenv import load_dotenv
 
-load_dotenv(f"{path.expanduser('~')}/.serv.env")
+load_dotenv(f"{path.expanduser('~')}/.servproto.env")
 
 
 def get_url(timeout=5) -> str:
@@ -25,28 +25,28 @@ def get_url(timeout=5) -> str:
 
 
 class EnvironmentVariables:
-    easy_version = "1.2.2"
+    easy_version = "1.2.3"
     server_host_name = socket.gethostname()
     user_home_dir = path.expanduser("~")
-    dotenv_file = f"{user_home_dir}/.serv.env"
+    dotenv_file = f"{user_home_dir}/.servproto.env"
     active_user = path.split(user_home_dir)[-1]
-    serv_dir = environ.get("SERV_DIR") or f"{user_home_dir}/serv"
-    bls_key_file = path.join(serv_dir, "blskey.pass")
-    servwallet_app = path.join(serv_dir, "servwallet")
-    harmony_conf = path.join(serv_dir, "serv.conf")
-    bls_key_dir = path.join(serv_dir, ".hmy", "blskeys")
+    harmony_dir = environ.get("HARMONY_DIR") or f"{user_home_dir}/harmony"
+    bls_key_file = path.join(harmony_dir, "blskey.pass")
+    hmy_app = path.join(harmony_dir, "hmy")
+    harmony_conf = path.join(harmony_dir, "harmony.conf")
+    bls_key_dir = path.join(harmony_dir, ".hmy", "blskeys")
     hmy_wallet_store = path.join(user_home_dir, ".hmy_cli", "account-keys", active_user)
-    toolbox_location = path.join(user_home_dir, "serv-toolbox")
+    toolbox_location = path.join(user_home_dir, "harmony-toolbox")
     validator_data = path.join(toolbox_location, "metadata", "validator.json")
-    password_path = path.join(serv_dir, "passphrase.txt")
+    password_path = path.join(harmony_dir, "passphrase.txt")
     external_ip = get_url()
     main_menu_regular = path.join(toolbox_location, "src", "messages", "regularmenu.txt")
-    ### add our endpoints here
+    # Update endpoints for SERV
     rpc_endpoints = ["https://api.s0.t.hmny.io", "https://api.harmony.one", "https://rpc.ankr.com/harmony"]
     rpc_endpoints_max_connection_retries = 10
-    hmy_tmp_path = "/tmp/servwallet"
-    harmony_tmp_path = "/tmp/serv"
-    folder_checks = ["serv", "serv0", "serv1", "serv2", "serv3", "serv4"]
+    hmy_tmp_path = "/tmp/hmy"
+    harmony_tmp_path = "/tmp/harmony"
+    folder_checks = ["harmony", "harmony0", "harmony1", "harmony2", "harmony3", "harmony4"]
 
     @staticmethod
     def get_working_endpoint(endpoints):

@@ -11,8 +11,8 @@ from requests.exceptions import HTTPError
 from toolbox.library import (
     process_command,
     print_stars,
-    print_stars,
     ask_yes_no,
+    check_online_version,
     return_txt,
     find_port,
     update_hmy_binary,
@@ -229,24 +229,24 @@ def menu_topper_regular(software_versions) -> None:
     )
     harmony_service_status(environ.get("SERVICE_NAME", "harmony"))
     print(
-        f'* Epoch Signing Percentage:         {Style.BRIGHT}{Fore.GREEN}{Back.BLUE}{sign_percentage} %{Style.RESET_ALL}{Fore.GREEN}\n* Current disk space free: {Fore.CYAN}{free_space_check(os.environ.get("SERV_DIR")): >6}{Fore.GREEN}\n* Current harmony version: {Fore.YELLOW}{software_versions["harmony_version"]}{Fore.GREEN}, has upgrade available: {software_versions["harmony_upgrade"]}\n* Current hmy version: {Fore.YELLOW}{software_versions["hmy_version"]}{Fore.GREEN}, has upgrade available: {software_versions["hmy_upgrade"]}\n{string_stars()}'
+        f'* Epoch Signing Percentage:         {Style.BRIGHT}{Fore.GREEN}{Back.BLUE}{sign_percentage} %{Style.RESET_ALL}{Fore.GREEN}\n* Current disk space free: {Fore.CYAN}{free_space_check(os.environ.get("HARMONY_DIR")): >6}{Fore.GREEN}\n* Current harmony version: {Fore.YELLOW}{software_versions["harmony_version"]}{Fore.GREEN}, has upgrade available: {software_versions["harmony_upgrade"]}\n* Current hmy version: {Fore.YELLOW}{software_versions["hmy_version"]}{Fore.GREEN}, has upgrade available: {software_versions["hmy_upgrade"]}\n{string_stars()}'
     )
     if environ.get("SHARD") != "0":
         print(
-            f"* Shard {environ.get('SHARD')} Stats:\n{string_stars()}\n* Remote Shard 0 Epoch: {remote_data_shard_0['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(remote_data_shard_0['result']['shard-chain-header']['number'])}, Local Shard 0 Size: {get_db_size(os.environ.get('SERV_DIR'), '0')}"
+            f"* Shard {environ.get('SHARD')} Stats:\n{string_stars()}\n* Remote Shard 0 Epoch: {remote_data_shard_0['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(remote_data_shard_0['result']['shard-chain-header']['number'])}, Local Shard 0 Size: {get_db_size(os.environ.get('HARMONY_DIR'), '0')}"
         )
         print(
             f"* Remote Shard {environ.get('SHARD')} Epoch: {remote_data_shard['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(remote_data_shard['result']['shard-chain-header']['number'])}"
         )
         print(
-            f"*  Local Shard {environ.get('SHARD')} Epoch: {local_data_shard['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(local_data_shard['result']['shard-chain-header']['number'])}, Local Shard {environ.get('SHARD')} Size: {get_db_size(os.environ.get('SERV_DIR'), environ.get('SHARD'))}"
+            f"*  Local Shard {environ.get('SHARD')} Epoch: {local_data_shard['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(local_data_shard['result']['shard-chain-header']['number'])}, Local Shard {environ.get('SHARD')} Size: {get_db_size(os.environ.get('HARMONY_DIR'), environ.get('SHARD'))}"
         )
     if environ.get("SHARD") == "0":
         print(
             f"* Shard {environ.get('SHARD')} Stats:\n{string_stars()}\n* Remote Shard {environ.get('SHARD')} Epoch: {remote_data_shard_0['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(remote_data_shard_0['result']['shard-chain-header']['number'])}"
         )
         print(
-            f"*  Local Shard {environ.get('SHARD')} Epoch: {local_data_shard['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(local_data_shard['result']['shard-chain-header']['number'])}, Local Shard 0 Size: {get_db_size(os.environ.get('SERV_DIR'), '0')}"
+            f"*  Local Shard {environ.get('SHARD')} Epoch: {local_data_shard['result']['shard-chain-header']['epoch']}, Current Block: {literal_eval(local_data_shard['result']['shard-chain-header']['number'])}, Local Shard 0 Size: {get_db_size(os.environ.get('HARMONY_DIR'), '0')}"
         )
     print(
         f"* CPU Load Averages: {round(load_1, 2)} over 1 min, {round(load_5, 2)} over 5 min, {round(load_15, 2)} over 15 min\n{string_stars()}"
@@ -276,7 +276,7 @@ def get_wallet_json(wallet: str) -> str:
     except HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
         print(
-            f'* You have not created your validator yet, try again after you add one!\n* cd ~/serv\n* ./servwallet keys recover-from-mnemonic {EnvironmentVariables.active_user} {environ.get("PASS_SWITCH")}'
+            f'* You have not created your validator yet, try again after you add one!\n* cd ~/harmony\n* ./hmy keys recover-from-mnemonic {EnvironmentVariables.active_user} {environ.get("PASS_SWITCH")}'
         )
         input("Press ENTER to return to the main menu.")
         return
@@ -352,7 +352,7 @@ def set_reserve_total(reserve_total):
 
 
 def drive_check() -> None:
-    server_drive_check(EnvironmentVariables.dotenv_file, os.environ.get("SERV_DIR"))
+    server_drive_check(EnvironmentVariables.dotenv_file, os.environ.get("HARMONY_DIR"))
     return
 
 
@@ -362,7 +362,7 @@ def run_check_balance() -> None:
 
 
 def bingo_checker():
-    command = f"grep BINGO {os.environ.get('SERV_DIR')}/latest/zerolog-harmony.log | tail -10"
+    command = f"grep BINGO {os.environ.get('HARMONY_DIR')}/latest/zerolog-harmony.log | tail -10"
     process_command(command, shell=True, print_output=True)
     print(f"{string_stars()}\n* Press enter to return to the main menu.\n{string_stars()}")
     input()
@@ -374,7 +374,24 @@ def run_rewards_collector() -> None:
     return
 
 
+def clear_temp_files() -> None:
+    # check and clear previous versions in /tmp
+    tmp_files = [EnvironmentVariables.harmony_tmp_path, EnvironmentVariables.hmy_tmp_path]
+    
+    for tmp_file in tmp_files:
+        try:
+            os.remove(tmp_file)
+        except FileNotFoundError:
+            pass  # Silently ignore if file doesn't exist
+        except Exception as e:
+            # You can still log or handle other exceptions if desired
+            pass
+
+
 def safety_defaults() -> None:
+    # clean files
+    clear_temp_files()
+    check_online_version()
     # default settings section
     set_var(EnvironmentVariables.dotenv_file, "EASY_VERSION", EnvironmentVariables.easy_version)
     if environ.get("GAS_RESERVE") is None:
@@ -383,31 +400,31 @@ def safety_defaults() -> None:
         set_var(EnvironmentVariables.dotenv_file, "REFRESH_TIME", "30")
     if environ.get("REFRESH_OPTION") is None:
         set_var(EnvironmentVariables.dotenv_file, "REFRESH_OPTION", "True")
-    if environ.get("SERV_DIR") is None:
-        if os.path.isdir(f"{EnvironmentVariables.user_home_dir}/serv"):
-            set_var(EnvironmentVariables.dotenv_file, "SERV_DIR", f"{EnvironmentVariables.user_home_dir}/serv")
-            set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", "serv")
+    if environ.get("HARMONY_DIR") is None:
+        if os.path.isdir(f"{EnvironmentVariables.user_home_dir}/harmony"):
+            set_var(EnvironmentVariables.dotenv_file, "HARMONY_DIR", f"{EnvironmentVariables.user_home_dir}/harmony")
+            set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", "harmony")
             return
-        elif os.path.isfile(f"{EnvironmentVariables.user_home_dir}/serv"):
+        elif os.path.isfile(f"{EnvironmentVariables.user_home_dir}/harmony"):
             try:
-                subprocess.run(f"{EnvironmentVariables.user_home_dir}/serv -V", check=True)
-                set_var(EnvironmentVariables.dotenv_file, "SERV_DIR", f"{EnvironmentVariables.user_home_dir}")
-                set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", "serv")
+                subprocess.run(f"{EnvironmentVariables.user_home_dir}/harmony -V", check=True)
+                set_var(EnvironmentVariables.dotenv_file, "HARMONY_DIR", f"{EnvironmentVariables.user_home_dir}")
+                set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", "harmony")
                 return
             except subprocess.CalledProcessError as e:
                 print(
-                    f"* Well this is odd, somehow SERV was not found.\n*\n* You can add the SERV_DIR variable to your ~/.serv.env file\n* Example default location: SERV_DIR = /home/serviceserv/serv\n*\n* Or contact Easy Node for custom configuration help.\* Error: {e}"
+                    f"* Well this is odd, somehow harmony was not found.\n*\n* You can add the HARMONY_DIR variable to your ~/.servproto.env file\n* Example default location: HARMONY_DIR = /home/serviceharmony/harmony\n*\n* Or contact Easy Node for custom configuration help.\* Error: {e}"
                 )
                 raise SystemExit(0)
         else:
             first_setup()
     if environ.get("SERVICE_NAME") is None:
-        set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", "serv")
+        set_var(EnvironmentVariables.dotenv_file, "SERVICE_NAME", "harmony")
     # always set conf to 13 keys, shard max
-    if os.path.exists(EnvironmentVariables.serv_conf):
-        update_text_file(EnvironmentVariables.serv_conf, "MaxKeys = 10", "MaxKeys = 13")
-    if os.path.isfile(f"{os.environ.get('SERV_DIR')}/blskey.pass"):
-        update_text_file(EnvironmentVariables.serv_conf, 'PassFile = ""', 'PassFile = "blskey.pass"')
+    if os.path.exists(EnvironmentVariables.harmony_conf):
+        update_text_file(EnvironmentVariables.harmony_conf, "MaxKeys = 10", "MaxKeys = 13")
+    if os.path.isfile(f"{os.environ.get('HARMONY_DIR')}/blskey.pass"):
+        update_text_file(EnvironmentVariables.harmony_conf, 'PassFile = ""', 'PassFile = "blskey.pass"')
     passphrase_status()
     get_shard_menu()
     set_main_or_test()
@@ -462,45 +479,58 @@ def update_stats_option() -> None:
 
 
 def harmony_voting() -> None:
-    print(f"{string_stars()}\n* Harmony Voting\n{string_stars()}")
-    question, proposal = proposal_choices_option()
-    if proposal == "Quit" or question == False:
-        return
-    validator_wallet_name = get_validator_wallet_name(environ.get("VALIDATOR_WALLET"))
-    if proposal == "HIP-30v2":
-        vote_choice_option, vote_choice_text = get_vote_choice()
-        if vote_choice_text == "Quit":
+    # Specify the deadline in UTC
+    utc = pytz.utc
+    # Deadline to go inactive, currently passed
+    deadline = utc.localize(datetime(2023, 8, 9, 20, 59))
+
+    # Get the current time in UTC
+    current_time = datetime.now(utc)
+
+    # Check if the current time is before or after the deadline
+    active_vote = current_time < deadline
+
+    if active_vote:
+        print(f"{string_stars()}\n* Harmony Voting\n{string_stars()}")
+        question, proposal = proposal_choices_option()
+        if proposal == "Quit" or question == False:
             return
-        print(
-            f"* Voting for {vote_choice_option} - {vote_choice_text} on proposal {proposal}\n* Please enter your validator wallet password now: \n"
-        )
-        command = f"{environ.get('SERV_DIR')}/servwallet governance vote-proposal --space harmony-mainnet.eth --proposal 0xce5f516c683170e4164a06e42dcd487681f46f42606b639955eb7c0fa3b13b96 --proposal-type single-choice --choice {vote_choice_option} --key {validator_wallet_name} --passphrase"
-        process_command(
-            command,
-            True,
-            True,
-        )
-    if proposal == "Governance for Harmony Recovery Wallet":
-        vote_choice_option, vote_choice_names_list = governance_member_voting()
-        vote_choice_names = "\n* ".join(
-            vote_choice_names_list[1:-1].split(", ")
-        )  # Extracting the names and formatting them
-        question = ask_yes_no(
-            f"* You have selected\n*\n* {vote_choice_names}\n*\n* Are you sure you want to vote for this list?  (Yes/No) "
-        )
-        if question:
+        validator_wallet_name = get_validator_wallet_name(environ.get("VALIDATOR_WALLET"))
+        if proposal == "HIP-30v2":
+            vote_choice_option, vote_choice_text = get_vote_choice()
+            if vote_choice_text == "Quit":
+                return
             print(
-                f"* Voting for {vote_choice_option} - {vote_choice_names_list} on proposal {proposal}\n* Please enter your validator wallet password now: \n"
+                f"* Voting for {vote_choice_option} - {vote_choice_text} on proposal {proposal}\n* Please enter your validator wallet password now: \n"
             )
-            command = f"{environ.get('SERV_DIR')}/servwallet governance vote-proposal --space harmony-mainnet.eth --proposal 0x80b87627254aa71870407a3c95742aa30c0e5ccdc81da23a1a54dcf0108778ae --proposal-type approval --choice \"{vote_choice_option}\" --key {validator_wallet_name} --passphrase"
+            command = f"{environ.get('HARMONY_DIR')}/hmy governance vote-proposal --space harmony-mainnet.eth --proposal 0xce5f516c683170e4164a06e42dcd487681f46f42606b639955eb7c0fa3b13b96 --proposal-type single-choice --choice {vote_choice_option} --key {validator_wallet_name} --passphrase"
             process_command(
                 command,
                 True,
                 True,
             )
-        else:
-            print("*\n* Returning to menu...")
-
+        if proposal == "Governance for Harmony Recovery Wallet":
+            vote_choice_option, vote_choice_names_list = governance_member_voting()
+            vote_choice_names = "\n* ".join(
+                vote_choice_names_list[1:-1].split(", ")
+            )  # Extracting the names and formatting them
+            question = ask_yes_no(
+                f"* You have selected\n*\n* {vote_choice_names}\n*\n* Are you sure you want to vote for this list?  (Yes/No) "
+            )
+            if question:
+                print(
+                    f"* Voting for {vote_choice_option} - {vote_choice_names_list} on proposal {proposal}\n* Please enter your validator wallet password now: \n"
+                )
+                command = f"{environ.get('HARMONY_DIR')}/hmy governance vote-proposal --space harmony-mainnet.eth --proposal 0x80b87627254aa71870407a3c95742aa30c0e5ccdc81da23a1a54dcf0108778ae --proposal-type approval --choice \"{vote_choice_option}\" --key {validator_wallet_name} --passphrase"
+                process_command(
+                    command,
+                    True,
+                    True,
+                )
+            else:
+                print("*\n* Returning to menu...")
+    else:
+        print(f"* Voting is currently closed, please try again later.")
     return
 
 
@@ -533,7 +563,7 @@ def run_regular_node() -> None:
     }
     while True:
         load_var_file(EnvironmentVariables.dotenv_file)
-        software_versions = version_checks(environ.get("SERV_DIR"))
+        software_versions = version_checks(environ.get("HARMONY_DIR"))
         menu_regular(software_versions)
         if software_versions["harmony_upgrade"] == "True":
             print(
@@ -609,6 +639,7 @@ def update_menu_option(software_versions) -> None:
 def hip_voting_option() -> None:
     # Specify the deadline in UTC
     utc = pytz.utc
+    # Deadline to go inactive, currently passed
     deadline = utc.localize(datetime(2023, 8, 9, 20, 59))
 
     # Get the current time in UTC
@@ -633,7 +664,7 @@ def rewards_sender_option() -> None:
 
 
 def make_backup_dir() -> str:
-    folder_name = f'{os.environ.get("SERV_DIR")}/harmony_backup/{datetime.now().strftime("%Y%m%d%H%M")}'
+    folder_name = f'{os.environ.get("HARMONY_DIR")}/harmony_backup/{datetime.now().strftime("%Y%m%d%H%M")}'
     process_command(f"mkdir -p {folder_name}")
     return folder_name
 
@@ -650,7 +681,7 @@ def hmy_cli_upgrade():
     try:
         # Backup the current version of hmy CLI
         folder_name = make_backup_dir()
-        process_command(f"cp {environ.get('SERV_DIR')}/servwallet {folder_name}")
+        process_command(f"cp {environ.get('HARMONY_DIR')}/hmy {folder_name}")
         print_stars()
 
         # Install the new version
@@ -673,41 +704,40 @@ def hmy_cli_upgrade():
 
 
 def update_harmony_app():
-    os.chdir(f"{os.environ.get('SERV_DIR')}")
+    os.chdir(f"{os.environ.get('HARMONY_DIR')}")
     print(f"{string_stars()}\nCurrently installed version: ")
     process_command("./harmony -V")
     folder_name = make_backup_dir()
     process_command(
-        f"cp {os.environ.get('SERV_DIR')}/harmony {os.environ.get('SERV_DIR')}/harmony.conf {folder_name}"
+        f"cp {os.environ.get('HARMONY_DIR')}/harmony {os.environ.get('HARMONY_DIR')}/harmony.conf {folder_name}"
     )
-    print(f"{string_stars()}\nDownloading current harmony binary file from harmony.one: \n{string_stars()}")
-    update_harmony_binary(os.environ.get("SERV_DIR"), EnvironmentVariables.harmony_conf)
+    update_harmony_binary()
     print(f"{string_stars()}\nUpdated version: ")
     process_command("./harmony -V")
     if environ.get("SHARD") != "0":
         size = 0
-        for path, dirs, files in os.walk(f"{os.environ.get('SERV_DIR')}/harmony_db_0"):
+        for path, dirs, files in os.walk(f"{os.environ.get('HARMONY_DIR')}/harmony_db_0"):
             for f in files:
                 fp = os.path.join(path, f)
                 size += os.path.getsize(fp)
-            if size >= 400000000:
+            if size >= 500000000:
                 question = ask_yes_no(
                     Fore.WHITE
                     + "* Are you sure you would like to proceed with upgrading and trimming database 0?\n\nType 'Yes' or 'No' to continue"
                 )
                 if question:
-                    process_command("sudo service harmony stop")
+                    process_command(f"sudo service {environ.get('SERVICE_NAME')} stop")
                     process_command(
-                        f"mv {os.environ.get('SERV_DIR')}/harmony_db_0 {os.environ.get('SERV_DIR')}/harmony_db_0_old"
+                        f"mv {os.environ.get('HARMONY_DIR')}/harmony_db_0 {os.environ.get('HARMONY_DIR')}/harmony_db_0_old"
                     )
-                    process_command("sudo service harmony start")
-                    process_command(f"rm -r {os.environ.get('SERV_DIR')}/harmony_db_0_old")
+                    process_command(f"sudo service {environ.get('SERVICE_NAME')} start")
+                    process_command(f"rm -r {os.environ.get('HARMONY_DIR')}/harmony_db_0_old")
                 else:
-                    print("Skipping removal of 0, but it's no longer required, fyi!")
+                    print("Skipping removal of 0, but it's no longer required, get your space back next time by running this prune, fyi!")
             else:
                 print("Your database 0 is already trimmed, enjoy!")
-    process_command("sudo service harmony restart")
-    print(f"{string_stars()}\nHarmony Service is restarting, waiting 10 seconds for restart.")
+    process_command(f"sudo service {environ.get('SERVICE_NAME')} restart")
+    print(f"{string_stars()}\nHarmony Service is restarting, waiting 10 seconds for processing to resume...")
     set_var(EnvironmentVariables.dotenv_file, "HARMONY_UPGRADE_AVAILABLE", "False")
     time.sleep(10)
 
@@ -715,7 +745,7 @@ def update_harmony_app():
 def menu_validator_stats():
     load_var_file(EnvironmentVariables.dotenv_file)
     remote_shard_0 = [
-        f"{environ.get('SERV_DIR')}/servwallet",
+        f"{environ.get('HARMONY_DIR')}/hmy",
         "blockchain",
         "latest-headers",
         f'--node=https://api.s0.{environ.get("NETWORK_SWITCH")}.hmny.io',
@@ -726,9 +756,9 @@ def menu_validator_stats():
     except (ValueError, KeyError, TypeError) as e:
         print(f"* Remote Shard 0 Offline, Error {e}")
     try:
-        http_port = find_port(environ.get("SERV_DIR"))
+        http_port = find_port(environ.get("HARMONY_DIR"))
         local_shard = [
-            f"{environ.get('SERV_DIR')}/servwallet",
+            f"{environ.get('HARMONY_DIR')}/hmy",
             "blockchain",
             "latest-headers",
             "--node",
@@ -744,7 +774,7 @@ def menu_validator_stats():
 
     if environ.get("SHARD") != "0":
         remote_shard = [
-            f"{environ.get('SERV_DIR')}/servwallet",
+            f"{environ.get('HARMONY_DIR')}/hmy",
             "blockchain",
             "latest-headers",
             f'--node=https://api.s{environ.get("SHARD")}.{environ.get("NETWORK_SWITCH")}.hmny.io',
@@ -761,7 +791,7 @@ def menu_validator_stats():
 
 def shard_stats(our_shard) -> str:
     our_uptime = subprocess.getoutput("uptime")
-    db_0_size = get_db_size(os.environ.get("SERV_DIR"), "0")
+    db_0_size = get_db_size(os.environ.get("HARMONY_DIR"), "0")
     if our_shard == "0":
         print(
             f"""
@@ -775,7 +805,7 @@ def shard_stats(our_shard) -> str:
     * Uptime :: {our_uptime}
     *
     * Harmony DB 0 Size  ::  {db_0_size}
-    * Harmony DB {our_shard} Size  ::   {get_db_size(os.environ.get("SERV_DIR"), str(our_shard))}
+    * Harmony DB {our_shard} Size  ::   {get_db_size(os.environ.get("HARMONY_DIR"), str(our_shard))}
     *
     *
     {string_stars()}
@@ -801,7 +831,7 @@ def menu_service_stop_start():
 def menu_service_stop_start_trigger(service) -> str:
     status = process_command(f"systemctl is-active --quiet {service}")
     if status != 0:
-        process_command("sudo service harmony start")
+        process_command(f"sudo service {environ.get('SERVICE_NAME')} start")
         print()
         print("* Harmony Service Has Been Started.")
         print()
@@ -815,7 +845,7 @@ def menu_service_stop_start_trigger(service) -> str:
             + "* Are you sure you would like to proceed?\n\nType 'Yes' or 'No' to continue"
         )
         if question:
-            process_command("sudo service harmony stop")
+            process_command(f"sudo service {environ.get('SERVICE_NAME')} stop")
             print()
             print(
                 "* Harmony Service Has Been Stopped. "
@@ -837,7 +867,7 @@ def menu_service_restart() -> str:
         + "Are you sure you would like to proceed?\n\nType 'Yes' or 'No' to continue"
     )
     if question:
-        process_command("sudo service harmony restart")
+        process_command(f"sudo service {environ.get('SERVICE_NAME')} restart")
         print()
         print("* The Harmony Service Has Been Restarted")
         input("* Press ENTER to return to the main menu.")
