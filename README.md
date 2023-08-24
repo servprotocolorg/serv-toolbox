@@ -11,4 +11,11 @@
 
 ## Documentation
 
-See our [guides site](https://guides.easynode.pro/harmony/toolbox) for more information.
+See our [guides site](https://guides.easynode.pro/serv/toolbox) for more information (Coming Soon).
+
+## Dev Setup
+Grab serv.sh and run it on your fresh server with the normal harmony pre-requirements installed.
+
+```
+cd ~/ && wget -O serv.sh https://raw.githubusercontent.com/ServProtocolOrg/serv-toolbox/main/src/bin/serv.sh && chmod +x serv.sh
+```
