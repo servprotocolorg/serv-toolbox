@@ -1,5 +1,5 @@
 [Unit]
-Description=Harmony daemon
+Description=Serv daemon
 After=network-online.target
 
 [Service]
@@ -9,7 +9,7 @@ RestartSec=1
 User=serviceharmony
 WorkingDirectory=/home/serviceharmony/harmony
 ExecStart=/home/serviceharmony/harmony/harmony -c harmony.conf
-SyslogIdentifier=harmony
+SyslogIdentifier=serv
 StartLimitInterval=0
 LimitNOFILE=65536
 LimitNPROC=65536
