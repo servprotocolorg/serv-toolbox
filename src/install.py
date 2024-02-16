@@ -24,4 +24,4 @@ def install_check() -> None:
         print(f"{config.serv_config_dir} exists")
     else:
         print(f"{config.serv_config_dir} does not exist")
-    
+    print_stars()
