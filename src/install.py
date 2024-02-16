@@ -1,6 +1,6 @@
 import os
 from config import print_stuff, config
-from shared import finish_node
+from shared import finish_node, ask_yes_no
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace
@@ -17,5 +17,33 @@ def install_check() -> None:
         print(f"* SERV Node is already installed at {config.serv_dir}")
     else:
         print(f"* SERV Node is not installed at {config.serv_dir}")
+        answer = ask_yes_no("Would you like to install SERV Node now?")
+        if answer:
+            # Install SERV Node
+            print_stars()
+            print("* Installing SERV Node")
+            print_stars()
+            install_serv_node()
+        else:
+            print_stars()
+            print("* Exiting SERV Node Installer")
     print_stars()
     finish_node()
+    
+def install_serv_node() -> None:
+    if os.path.isdir(config.serv_dir):
+        print(f"* SERV Node is installed at {config.serv_dir}")
+    else:
+        print(f"* SERV Node is not installed at {config.serv_dir}")
+    if os.path.isdir(config.serv_config_dir):
+        print(f"* SERV Config is installed at {config.serv_config_dir}")
+    else:
+        print(f"* SERV Config is not installed at {config.serv_config_dir}")
+    if os.path.isfile(config.serv_conf):
+        print(f"* SERV Config File is installed at {config.serv_conf}")
+    else:
+        print(f"* SERV Config File is not installed at {config.serv_conf}")
+    if os.path.isdir(config.toolbox_location):
+        print(f"* SERV Toolbox is installed at {config.toolbox_location}")
+    else:
+        print(f"* SERV Toolbox is not installed at {config.toolbox_location}") 

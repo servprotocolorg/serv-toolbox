@@ -93,3 +93,11 @@ def finish_node() -> None:
     print("* Goodbye!")
     print_stars()
     return
+
+def ask_yes_no(question: str) -> bool:
+    yes_no_answer = ""
+    while not yes_no_answer.startswith(("Y", "N")):
+        yes_no_answer = input(f"{question}: ").upper()
+    if yes_no_answer.startswith("Y"):
+        return True
+    return False
