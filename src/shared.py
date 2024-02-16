@@ -90,6 +90,6 @@ def loader_intro():
 
 def finish_node() -> None:
     print_stars()
-    print("Goodbye!")
+    print("* Goodbye!")
     print_stars()
     return
