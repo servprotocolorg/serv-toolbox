@@ -1,5 +1,6 @@
 import os
 from config import print_stuff, config
+from shared import finish_node
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace
@@ -12,16 +13,9 @@ def install_check() -> None:
     print_stars()
     print("* Checking File Configuration")
     print_stars()
-    if os.path.exists(config.dotenv_file):
-        print(f"{config.dotenv_file} exists")
+    if os.path.exists(config.serv_dir) and os.path.exists(config.serv_config_dir) and os.path.exists(config.serv_conf) and os.path.exists(config.toolbox_location):
+        print(f"SERV Node is installed at {config.serv_dir}")
     else:
-        print(f"{config.dotenv_file} does not exist")
-    if os.path.exists(config.serv_dir):
-        print(f"{config.serv_dir} exists")
-    else:
-        print(f"{config.serv_dir} does not exist")
-    if os.path.exists(config.serv_config_dir):
-        print(f"{config.serv_config_dir} exists")
-    else:
-        print(f"{config.serv_config_dir} does not exist")
+        print(f"SERV Node is not installed at {config.serv_dir}")
     print_stars()
+    finish_node()
