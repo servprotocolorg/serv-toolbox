@@ -14,8 +14,8 @@ def install_check() -> None:
     print("* Checking File Configuration")
     print_stars()
     if os.path.exists(config.serv_dir) and os.path.exists(config.serv_config_dir) and os.path.exists(config.serv_conf) and os.path.exists(config.toolbox_location):
-        print(f"SERV Node is installed at {config.serv_dir}")
+        print(f"* SERV Node is installed at {config.serv_dir}")
     else:
-        print(f"SERV Node is not installed at {config.serv_dir}")
+        print(f"* SERV Node is not installed at {config.serv_dir}")
     print_stars()
     finish_node()
