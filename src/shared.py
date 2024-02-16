@@ -1,3 +1,6 @@
+import subprocess
+import os
+from dotenv import load_dotenv
 from config import print_stuff, config
 
 # Setup print stuff from config class print_stuff
@@ -7,7 +10,16 @@ string_stars = print_stuff().stringStars
 print_stars_reset = print_stuff(reset=1).printStars
 string_stars_reset = print_stuff(reset=1).stringStars
 
-def parse_flags(parser, region, network):
+def load_var_file(var_file):
+    # load .env file or create it if it doesn't exist
+    if os.path.exists(var_file):
+        load_dotenv(var_file, override=True)
+        return True
+    else:
+        subprocess.run(["touch", var_file])
+        return False
+
+def parse_flags(parser):
     # Add the arguments
     parser.add_argument(
         "-u",

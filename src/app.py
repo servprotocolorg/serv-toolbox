@@ -1,9 +1,11 @@
 import argparse
 from config import print_stuff, config
-from shared import parse_flags, loader_intro
+from shared import parse_flags, loader_intro, load_var_file
 from install import install_check
 
 def app():
+    # Load env
+    load_var_file(config.dotenv_file)
     # Clear screen, show logo
     loader_intro()
 

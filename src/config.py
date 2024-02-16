@@ -45,10 +45,7 @@ class print_stuff:
         print("\n" * 8)
 
 class Config:
-    def __init__(self):
-        # Load environment variables from .env file
-        load_dotenv(f"{path.expanduser('~')}/.serv.env")
-        
+    def __init__(self):        
         self.easy_version = "1.0.0"
         self.server_host_name = socket.gethostname()
         self.user_home_dir = path.expanduser("~")
@@ -56,9 +53,9 @@ class Config:
         self.active_user = path.split(self.user_home_dir)[-1]
         self.serv_dir = environ.get("SERV_DIR") or f"{self.user_home_dir}/serv"
         self.serv_config_dir = environ.get("SERV_CONFIG_DIR") or f"{self.user_home_dir}/serv"
-        self.serv_conf = path.join(serv_dir, "serv.conf")
+        self.serv_conf = path.join(self.serv_dir, "serv.conf")
         self.toolbox_location = path.join(self.user_home_dir, "serv-toolbox")
-        self.password_path = path.join(serv_dir, "passphrase.txt")
+        self.password_path = path.join(self.serv_dir, "passphrase.txt")
         self.external_ip = get_url()
         self.rpc_endpoints = ["https://rpc.serv.service"]
         self.rpc_endpoints_max_connection_retries = 10
