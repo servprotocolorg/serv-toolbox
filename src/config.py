@@ -53,7 +53,7 @@ class Config:
         self.active_user = path.split(self.user_home_dir)[-1]
         self.serv_dir = environ.get("SERV_DIR") or f"{self.user_home_dir}/serv"
         self.serv_config_dir = environ.get("SERV_CONFIG_DIR") or f"{self.user_home_dir}/.serv"
-        self.serv_conf = path.join(self.serv_dir, "serv.conf")
+        self.serv_conf = path.join(self.serv_config_dir, "config", "config.conf")
         self.toolbox_location = path.join(self.user_home_dir, "serv-toolbox")
         self.password_path = path.join(self.serv_dir, "passphrase.txt")
         self.external_ip = get_url()
