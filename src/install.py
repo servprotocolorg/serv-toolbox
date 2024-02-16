@@ -17,7 +17,7 @@ def install_check() -> None:
         print(f"* SERV Node is already installed at {config.serv_dir}")
     else:
         print(f"* SERV Node is not installed at {config.serv_dir}")
-        answer = ask_yes_no("Would you like to install SERV Node now?")
+        answer = ask_yes_no("* Would you like to install SERV Node now?")
         if answer:
             # Install SERV Node
             print_stars()
