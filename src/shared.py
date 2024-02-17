@@ -314,4 +314,4 @@ def set_address_vars(wallet_password) -> None:
     set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
     print("* Getting emv address")
     emv_address = get_bytes_address(str(address))
-    set_var(config.dotenv_file, "SERV_EMV_ADDRESS", str(emv_address))
+    set_var(config.dotenv_file, "SERV_EVM_ADDRESS", str(emv_address))
