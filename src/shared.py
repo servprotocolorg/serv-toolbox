@@ -251,7 +251,7 @@ def display_node_info(node_status):
             if latest_block_time
             else "N/A"
         )
-        
+
         cpu_stats = get_system_stats()
 
         print(f"* Current Stats For {moniker}")
@@ -328,21 +328,26 @@ def get_bytes_address(sx_address):
 
 
 def set_address_vars(wallet_password) -> None:
-    if not os.environ.get("SERV_WALLET_ADDRESS") or os.environ.get("SERV_SERVER_ADDRESS") == "None":
+    serv_wallet_address = os.environ.get("SERV_WALLET_ADDRESS")
+    serv_server_address = os.environ.get("SERV_SERVER_ADDRESS")
+    serv_evm_address = os.environ.get("SERV_EVM_ADDRESS")
+
+    if serv_wallet_address is None:
         print("* Getting wallet address")
         address = run_command_and_return_output(
             f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a"
         )
         set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
-        return
-    if not os.environ.get("SERV_SERVER_ADDRESS") or os.environ.get("SERV_SERVER_ADDRESS") == "None":
+
+    if serv_server_address is None:
         print("* Getting server address")
         server_address = run_command_and_return_output(
             f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val"
         )
         set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
-    if not os.environ.get("SERV_EVM_ADDRESS") or os.environ.get("SERV_EVM_ADDRESS") == "None":
-        print("* Getting emv address")
+
+    if serv_evm_address is None:
+        print("* Getting EVM address")
         emv_address = get_bytes_address(str(address))
         set_var(config.dotenv_file, "SERV_EVM_ADDRESS", str(emv_address))
 
