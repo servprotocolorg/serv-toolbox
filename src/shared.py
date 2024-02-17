@@ -250,6 +250,8 @@ def display_node_info(node_status):
             if latest_block_time
             else "N/A"
         )
+        
+        cpu_stats = run_command_and_return_output("top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'")
 
         print(f"* Current Stats For {moniker}")
         print(f"* Wallet Address: {os.environ.get('SERV_WALLET_ADDRESS')}")
@@ -258,6 +260,7 @@ def display_node_info(node_status):
         print(f"* Latest Block Height: {latest_block_height}")
         print(f"* Latest Block Time: {latest_block_time_str}")
         print(f"* Catching Up: {catching_up}")
+        print(f"* {cpu_stats}")
     else:
         print("* Failed to retrieve node status.")
 
