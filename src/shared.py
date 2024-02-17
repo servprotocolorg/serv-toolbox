@@ -183,10 +183,12 @@ def get_node_status():
 def display_node_info(node_status):
     if node_status is not None:
         sync_info = node_status.get("SyncInfo", {})
+        node_info = node_status.get("NodeInfo", {})
+        moniker = node_info.get("moniker", "Unknown")
         latest_block_height = sync_info.get("latest_block_height", "N/A")
         latest_block_time = sync_info.get("latest_block_time", "N/A")
         catching_up = sync_info.get("catching_up", False)
-
+        print(f"* Current Stats For {moniker}:")
         print(f"* Latest Block Height: {latest_block_height}")
         print(f"* Latest Block Time: {latest_block_time}")
         print(f"* Catching Up: {catching_up}")
