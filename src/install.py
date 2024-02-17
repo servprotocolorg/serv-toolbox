@@ -1,6 +1,7 @@
 import os
+import subprocess
 from config import print_stuff, config
-from shared import finish_node, ask_yes_no, process_command
+from shared import finish_node, ask_yes_no, process_command, run_command
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace
@@ -66,12 +67,12 @@ def install_serv_node() -> None:
         print("* Creating wallet")
         answer = ask_yes_no(f"* Would you like to create a wallet for your validator node?")
         if answer:
-            process_command(f"{config.servnode} keys add {config.active_user}")
+            run_command(f"{config.servnode} keys add {config.active_user}")
         else:
             print(f"* Skipping wallet creation")
             answer = ask_yes_no(f"* Would you like to import a wallet now?")
             if answer:
-                process_command(f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"')
+                run_command(f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"')
                 pass
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")

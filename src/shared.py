@@ -116,3 +116,17 @@ def process_command(command: str, shell=True, print_output=True) -> Tuple[bool, 
     if print_output:
         print(f"Error executing command: {result.stderr}")
     return False, result.stderr
+
+def run_command(command: str, shell=True, print_output=True) -> bool:
+    try:
+        if print_output:
+            subprocess.run(command, shell=shell, check=True)
+        else:
+            # Suppress the output if print_output is set to False
+            with open(os.devnull, "w") as fnull:
+                subprocess.run(command, shell=shell, check=True, stdout=fnull, stderr=fnull)
+        return True
+    except subprocess.CalledProcessError as e:
+        if print_output:
+            print(f"Error executing command: {e}")
+        return False
