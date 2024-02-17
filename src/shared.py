@@ -1,6 +1,7 @@
 import subprocess
 import os
 import json
+from datetime import datetime, timezone
 from colorama import Fore, Style, Back
 from dotenv import load_dotenv
 from config import print_stuff, config
@@ -191,11 +192,19 @@ def display_node_info(node_status):
         node_info = node_status.get("NodeInfo", {})
         moniker = node_info.get("moniker", "Unknown")
         latest_block_height = sync_info.get("latest_block_height", "N/A")
-        latest_block_time = sync_info.get("latest_block_time", "N/A")
+        latest_block_time_str = sync_info.get("latest_block_time", "N/A")
         catching_up = sync_info.get("catching_up", False)
-        print(f"* Current Stats For {moniker}:")
+
+        # Convert the latest_block_time to a readable format
+        if latest_block_time_str != "N/A":
+            latest_block_time = datetime.strptime(
+                latest_block_time_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ).replace(tzinfo=timezone.utc)
+            latest_block_time_str = latest_block_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        print(f"* Current Stats For {moniker}")
         print(f"* Latest Block Height: {latest_block_height}")
-        print(f"* Latest Block Time: {latest_block_time}")
+        print(f"* Latest Block Time: {latest_block_time_str}")
         print(f"* Catching Up: {catching_up}")
     else:
         print("* Failed to retrieve node status.")
