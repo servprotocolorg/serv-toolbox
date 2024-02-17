@@ -160,39 +160,50 @@ def process_command(command: str, shell=True, print_output=True) -> Tuple[bool, 
     return False, result.stderr
 
 
-def run_command(command: str, shell=True, print_output=True) -> (bool, str):
+def run_command(
+    command: str, shell=True, print_output=True, interactive=False
+) -> (bool, str):
     try:
-        if print_output:
-            result = subprocess.run(
-                command, shell=shell, check=True, capture_output=True, text=True
-            )
+        # Use Popen for interactive commands
+        process = subprocess.Popen(
+            command,
+            shell=shell,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
+        if interactive:
+            # Communicate with the process, sending an empty input
+            output, error = process.communicate(input="\n")
         else:
-            # Suppress the output if print_output is set to False
-            with open(os.devnull, "w") as fnull:
-                result = subprocess.run(
-                    command,
-                    shell=shell,
-                    check=True,
-                    stdout=subprocess.PIPE,
-                    stderr=fnull,
-                    text=True,
-                )
+            # Wait for the process to complete
+            output, error = process.communicate()
 
         # Extract the address and mnemonic from the output
-        address_match = re.search(r"address: (\w+)", result.stdout)
+        address_match = re.search(r"address: (\w+)", output)
         mnemonic_match = re.search(
             r"**Important\*\* write this mnemonic phrase in a safe place.\nIt is the only way to recover your account if you ever forget your password.\n\n(.+)",
-            result.stdout,
+            output,
             re.DOTALL,
         )
 
         address = address_match.group(1) if address_match else None
         mnemonic = mnemonic_match.group(1).strip() if mnemonic_match else None
 
-        return True, (address, mnemonic)
-    except subprocess.CalledProcessError as e:
         if print_output:
-            print(f"* Error executing command: {e}")
+            print(output)
+
+        if process.returncode == 0:
+            return True, (address, mnemonic)
+        else:
+            print(
+                f"* Error executing command. Return code: {process.returncode}. Error: {error}"
+            )
+            return False, None
+
+    except Exception as e:
+        print(f"* Exception while executing command: {e}")
         return False, None
 
 
