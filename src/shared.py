@@ -2,7 +2,6 @@ import subprocess
 import os
 import json
 import time
-import re
 import dotenv
 from os import environ
 from datetime import datetime, timezone
@@ -160,9 +159,7 @@ def process_command(command: str, shell=True, print_output=True) -> Tuple[bool, 
     return False, result.stderr
 
 
-def run_command(
-    command: str, shell=True, print_output=True, interactive=False
-) -> (bool, str):
+def run_command(command: str, shell=True, print_output=True) -> (bool, str):
     try:
         # Use Popen for interactive commands
         process = subprocess.Popen(
@@ -172,30 +169,13 @@ def run_command(
             stderr=subprocess.PIPE,
             text=True,
         )
-
-        if interactive:
-            # Communicate with the process, sending an empty input
-            output, error = process.communicate(input="\n")
-        else:
-            # Wait for the process to complete
-            output, error = process.communicate()
-
-        # Extract the address and mnemonic from the output
-        address_match = re.search(r"address: (\w+)", output)
-        mnemonic_match = re.search(
-            r"**Important\*\* write this mnemonic phrase in a safe place.\nIt is the only way to recover your account if you ever forget your password.\n\n(.+)",
-            output,
-            re.DOTALL,
-        )
-
-        address = address_match.group(1) if address_match else None
-        mnemonic = mnemonic_match.group(1).strip() if mnemonic_match else None
+        output, error = process.communicate()
 
         if print_output:
             print(output)
 
         if process.returncode == 0:
-            return True, (address, mnemonic)
+            return True, output
         else:
             print(
                 f"* Error executing command. Return code: {process.returncode}. Error: {error}"
