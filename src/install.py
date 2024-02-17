@@ -48,7 +48,7 @@ def install_serv_node() -> None:
                 with open("/tmp/config.toml", "r") as file:
                     filedata = file.read()
                 # Update settings
-                filedata = filedata.replace('moniker = "Serv-0"', f'moniker = "{answer}"')
+                filedata = filedata.replace('moniker = "Serv-0"', f'moniker = "{short_name}"')
                 filedata = filedata.replace('log_level = "info"', 'log_level = "warn"')
                 # Save file
                 with open("/tmp/config.toml", "w") as file:
