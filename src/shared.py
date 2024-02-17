@@ -41,7 +41,7 @@ def parse_flags(parser):
         action="store_true",
         help="Will update and/or restart your SERV Node.",
     )
-    
+
     parser.add_argument(
         "-r",
         "--restart",
@@ -82,11 +82,9 @@ def parse_flags(parser):
     if args.claim:
         # We'll do something here soon!
         finish_node()
-        
+
     if args.restart:
-        print("* Restarting SERV Node service...")
-        run_command("sudo systemctl restart servnode", print_output=False)
-        print("* SERV Node service restarted.")
+        restart_servnode_service()
         finish_node()
 
     if args.installer:
@@ -332,3 +330,10 @@ def set_address_vars(wallet_password) -> None:
     print("* Getting emv address")
     emv_address = get_bytes_address(str(address))
     set_var(config.dotenv_file, "SERV_EVM_ADDRESS", str(emv_address))
+
+
+def restart_servnode_service() -> None:
+    print("* Restarting SERV Node service...")
+    run_command("sudo systemctl restart servnode", print_output=False)
+    print("* SERV Node service restarted.")
+    return
