@@ -1,5 +1,6 @@
 import os
 import subprocess
+from colorama import Fore, Style, Back
 from config import print_stuff, config
 from shared import finish_node, ask_yes_no, process_command, run_command
 
@@ -28,8 +29,6 @@ def install_check() -> None:
         else:
             print_stars()
             print("* Exiting SERV Node Installer")
-    print_stars()
-    finish_node()
     
 def install_serv_node() -> None:
     if not os.path.isdir(config.serv_dir):
@@ -67,6 +66,7 @@ def install_serv_node() -> None:
         # Wallet Stuff
         print("* Creating/Importing SERV wallet")
         answer = ask_yes_no(f"* Would you like to create a wallet for your validator node?")
+        print(Fore.WHITE)
         if answer:
             run_command(f"{config.servnode} keys add {config.active_user}")
         else:
