@@ -249,14 +249,15 @@ def set_var(env_file, key_name, update_name):
 
 
 def ask_for_wallet_password():
+    print("* Please set a wallet password for this server. We won't save or use the password at this time this is only for setup\n*\n")
     while True:
-        password = getpass.getpass("Enter your wallet password: ")
-        confirm_password = getpass.getpass("Confirm your wallet password: ")
+        password = getpass.getpass("* Enter your wallet password: ")
+        confirm_password = getpass.getpass("* Confirm your wallet password: ")
 
         if password == confirm_password:
             return password
         else:
-            print("Passwords do not match. Please try again.")
+            print("* Passwords do not match. Please try again.")
 
 
 def get_bytes_address(sx_address):

@@ -51,7 +51,7 @@ class Config:
         self.easy_version = "1.0.0"
         self.server_host_name = socket.gethostname()
         self.user_home_dir = path.expanduser("~")
-        self.dotenv_file = f"{self.user_home_dir}/.serv.env"
+        self.dotenv_file = f"{self.user_home_dir}/.servvars.env"
         self.active_user = path.split(self.user_home_dir)[-1]
         self.serv_dir = environ.get("SERV_DIR") or path.join(self.user_home_dir, "serv")
         self.servnode = path.join(self.serv_dir, "servnode")
