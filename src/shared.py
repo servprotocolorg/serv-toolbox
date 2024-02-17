@@ -4,6 +4,7 @@ import json
 import time
 import dotenv
 import getpass
+import psutil
 from os import environ
 from datetime import datetime, timezone
 from colorama import Fore
@@ -251,7 +252,7 @@ def display_node_info(node_status):
             else "N/A"
         )
         
-        cpu_stats = run_command_and_return_output("top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'")
+        cpu_stats = get_system_stats()
 
         print(f"* Current Stats For {moniker}")
         print(f"* Wallet Address: {os.environ.get('SERV_WALLET_ADDRESS')}")
@@ -263,6 +264,13 @@ def display_node_info(node_status):
         print(f"* {cpu_stats}")
     else:
         print("* Failed to retrieve node status.")
+
+
+def get_system_stats():
+    cpu_percent = psutil.cpu_percent(interval=1)
+    memory_percent = psutil.virtual_memory().percent
+
+    return f"CPU: {cpu_percent:.2f}% | Memory: {memory_percent:.2f}%"
 
 
 # check if a var exists in your .env file, unset and reset if exists to avoid bad stuff
