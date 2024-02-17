@@ -3,14 +3,13 @@ import subprocess
 from colorama import Fore
 from config import print_stuff, config
 from shared import (
-    ask_for_mnemonic,
     ask_for_wallet_password,
     ask_yes_no,
     process_command,
     run_command,
     run_command_and_return_output,
     finish_node,
-    set_address_vars
+    set_address_vars,
 )
 
 # Setup print stuff from config class print_stuff
@@ -119,10 +118,11 @@ def install_serv_node() -> None:
             )
             if answer:
                 wallet_password = ask_for_wallet_password()
-                # mnemonic_phrase = ask_for_mnemonic()
-                print("* Recovering wallet from mnemonic phrase, input your info below directly into servnode (we do not store or see your info)\n* Please re-enter the password used previously and your mnemonic phrase when prompted\n*")
+                print(
+                    "* Recovering wallet from mnemonic phrase, input your info below directly into servnode (we do not store or see your info)\n* Please enter your mnemonic below for recovery & re-enter the wallet password used previously as the keyring phrase:\n*"
+                )
                 run_command(
-                    f'{config.servnode} keys add {config.active_user} --recover',
+                    f"{config.servnode} keys add {config.active_user} --recover",
                     print_output=True,
                 )
                 set_address_vars(wallet_password)

@@ -275,24 +275,6 @@ def ask_for_wallet_password():
             print("* Passwords do not match. Please try again.")
 
 
-def ask_for_mnemonic():
-    print(
-        "* Please enter a 24-word mnemonic phrase for your wallet. This is for setup purposes and won't be saved.\n*\n"
-    )
-    while True:
-        mnemonic = getpass.getpass(
-            "* Enter your 24-word mnemonic phrase: "
-        )
-        confirm_mnemonic = getpass.getpass("* Confirm your 24-word mnemonic phrase: ")
-
-        if validate_mnemonic(mnemonic) and mnemonic == confirm_mnemonic:
-            return mnemonic
-        elif not validate_mnemonic(mnemonic):
-            print("* Invalid mnemonic phrase. Please ensure you have entered 24 valid words.")
-        else:
-            print("* Mnemonic phrases do not match. Please try again.")
-
-
 def validate_mnemonic(mnemonic):
     # Split the mnemonic phrase into words using whitespace as the delimiter
     words = mnemonic.split()
