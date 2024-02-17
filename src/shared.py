@@ -1,5 +1,6 @@
 import subprocess
 import os
+import json
 from dotenv import load_dotenv
 from config import print_stuff, config
 from typing import Tuple
@@ -74,12 +75,12 @@ def parse_flags(parser):
         finish_node()
 
     if args.stats:
-        stats_command = "/home/servuser/serv/servnode status | jq -r '.SyncInfo | \"Latest Block: \(.latest_block_height) Block Time: \(.latest_block_time | strptime(\"%Y-%m-%dT%H:%M:%S%Z\") | strftime(\"%Y-%m-%d %H:%M:%S\")) Catching Up: \(.catching_up)'"
-        try:
-            result = subprocess.run(stats_command, shell=True, check=True, capture_output=True, text=True)
-            print("Command output:", result.stdout)
-        except subprocess.CalledProcessError as e:
-            print(f"Command failed with return code {e.returncode}. Output: {e.stdout}")
+        # Get node status
+        node_status = get_node_status()
+
+        # Display node info
+        display_node_info(node_status)
+
         finish_node()
 
     if args.update:
@@ -164,3 +165,30 @@ def run_command(command: str, shell=True, print_output=True) -> bool:
         if print_output:
             print(f"Error executing command: {e}")
         return False
+
+
+def get_node_status():
+    command = f"{config.servnode} status"
+
+    try:
+        result = subprocess.run(
+            command, shell=True, check=True, capture_output=True, text=True
+        )
+        return json.loads(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with return code {e.returncode}. Output: {e.stdout}")
+        return None
+
+
+def display_node_info(node_status):
+    if node_status is not None:
+        sync_info = node_status.get("SyncInfo", {})
+        latest_block_height = sync_info.get("latest_block_height", "N/A")
+        latest_block_time = sync_info.get("latest_block_time", "N/A")
+        catching_up = sync_info.get("catching_up", False)
+
+        print(f"Latest Block Height: {latest_block_height}")
+        print(f"Latest Block Time: {latest_block_time}")
+        print(f"Catching Up: {catching_up}")
+    else:
+        print("Failed to retrieve node status.")
