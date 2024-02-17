@@ -2,6 +2,9 @@ import subprocess
 import os
 import json
 import time
+import re
+import dotenv
+from os import environ
 from datetime import datetime, timezone
 from colorama import Fore
 from dotenv import load_dotenv
@@ -157,21 +160,40 @@ def process_command(command: str, shell=True, print_output=True) -> Tuple[bool, 
     return False, result.stderr
 
 
-def run_command(command: str, shell=True, print_output=True) -> bool:
+def run_command(command: str, shell=True, print_output=True) -> (bool, str):
     try:
         if print_output:
-            subprocess.run(command, shell=shell, check=True)
+            result = subprocess.run(
+                command, shell=shell, check=True, capture_output=True, text=True
+            )
         else:
             # Suppress the output if print_output is set to False
             with open(os.devnull, "w") as fnull:
-                subprocess.run(
-                    command, shell=shell, check=True, stdout=fnull, stderr=fnull
+                result = subprocess.run(
+                    command,
+                    shell=shell,
+                    check=True,
+                    stdout=subprocess.PIPE,
+                    stderr=fnull,
+                    text=True,
                 )
-        return True
+
+        # Extract the address and mnemonic from the output
+        address_match = re.search(r"address: (\w+)", result.stdout)
+        mnemonic_match = re.search(
+            r"**Important\*\* write this mnemonic phrase in a safe place.\nIt is the only way to recover your account if you ever forget your password.\n\n(.+)",
+            result.stdout,
+            re.DOTALL,
+        )
+
+        address = address_match.group(1) if address_match else None
+        mnemonic = mnemonic_match.group(1).strip() if mnemonic_match else None
+
+        return True, (address, mnemonic)
     except subprocess.CalledProcessError as e:
         if print_output:
             print(f"* Error executing command: {e}")
-        return False
+        return False, None
 
 
 def get_node_status(retry_limit=3, retry_delay=2):
@@ -237,3 +259,12 @@ def display_node_info(node_status):
         print(f"* Catching Up: {catching_up}")
     else:
         print("* Failed to retrieve node status.")
+
+
+# check if a var exists in your .env file, unset and reset if exists to avoid bad stuff
+def set_var(env_file, key_name, update_name):
+    if environ.get(key_name):
+        dotenv.unset_key(env_file, key_name)
+    dotenv.set_key(env_file, key_name, update_name)
+    load_var_file(env_file)
+    return
