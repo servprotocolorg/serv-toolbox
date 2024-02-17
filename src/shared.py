@@ -26,6 +26,9 @@ def load_var_file(var_file):
 
 def parse_flags(parser):
     print(Fore.MAGENTA)
+    print_stars()
+    print("* SERV Node Management Toolbox - EasyNode.pro")
+    print_stars()
     # Add the arguments
     parser.add_argument(
         "-u",
