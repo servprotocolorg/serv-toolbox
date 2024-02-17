@@ -1,6 +1,6 @@
 import argparse
 from config import print_stuff, config
-from shared import parse_flags, loader_intro, load_var_file, get_node_status, display_node_info
+from shared import parse_flags, loader_intro, load_var_file, get_node_status, display_node_info, finish_node
 from install import install_check
 
 def app():
@@ -23,6 +23,9 @@ def app():
 
     # Display node info
     display_node_info(node_status)
+    
+    # Goodbye for now!
+    finish_node()
     
     
 
