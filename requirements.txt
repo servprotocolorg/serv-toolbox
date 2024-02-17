@@ -1,5 +1,5 @@
 argparse>=1.4.0
 colorama>=0.4.3
-psutill>=5.7.0
+psutill>=5.6.9
 python-dotenv>= 0.8.0
 simple-term-menu>=1.2.1
