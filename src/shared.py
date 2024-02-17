@@ -328,19 +328,23 @@ def get_bytes_address(sx_address):
 
 
 def set_address_vars(wallet_password) -> None:
-    print("* Getting wallet address")
-    address = run_command_and_return_output(
-        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a"
-    )
-    set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
-    print("* Getting server address")
-    server_address = run_command_and_return_output(
-        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val"
-    )
-    set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
-    print("* Getting emv address")
-    emv_address = get_bytes_address(str(address))
-    set_var(config.dotenv_file, "SERV_EVM_ADDRESS", str(emv_address))
+    if not os.environ.get("SERV_WALLET_ADDRESS") or os.environ.get("SERV_SERVER_ADDRESS") == "None":
+        print("* Getting wallet address")
+        address = run_command_and_return_output(
+            f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a"
+        )
+        set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
+        return
+    if not os.environ.get("SERV_SERVER_ADDRESS") or os.environ.get("SERV_SERVER_ADDRESS") == "None":
+        print("* Getting server address")
+        server_address = run_command_and_return_output(
+            f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val"
+        )
+        set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
+    if not os.environ.get("SERV_EVM_ADDRESS") or os.environ.get("SERV_EVM_ADDRESS") == "None":
+        print("* Getting emv address")
+        emv_address = get_bytes_address(str(address))
+        set_var(config.dotenv_file, "SERV_EVM_ADDRESS", str(emv_address))
 
 
 def restart_servnode_service() -> None:
