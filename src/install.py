@@ -119,9 +119,10 @@ def install_serv_node() -> None:
             )
             if answer:
                 wallet_password = ask_for_wallet_password()
-                mnemonic_phrase = ask_for_mnemonic()
+                # mnemonic_phrase = ask_for_mnemonic()
+                print("* Recovering wallet from mnemonic phrase, input your info below directly into servnode (we do not store or see your info)\n* Please re-enter the password used previously and your mnemonic phrase when prompted\n*")
                 run_command(
-                    f'echo {mnemonic_phrase} | {config.servnode} keys add {config.active_user} --recover',
+                    f'{config.servnode} keys add {config.active_user} --recover',
                     print_output=True,
                 )
                 set_address_vars(wallet_password)
