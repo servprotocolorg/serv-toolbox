@@ -114,7 +114,6 @@ def parse_flags(parser):
 
 # loader intro splash screen
 def loader_intro():
-    print_stars()
     p = """*
 *
 * ███████╗███████╗██████╗ ██╗   ██╗                           
