@@ -176,6 +176,7 @@ def run_command(command: str, shell=True, print_output=True) -> bool:
             print(f"* Error executing command: {e}")
         return False
 
+
 def run_command_and_return_output(command):
     try:
         result = subprocess.check_output(command, shell=True, text=True)
@@ -257,20 +258,28 @@ def set_var(env_file, key_name, update_name):
 
 
 def ask_for_wallet_password():
-    print("* Please set a wallet password for this server. We won't save or use the password at this time this is only for setup\n*\n")
+    print(
+        "* Please set a wallet password for this server. We won't save or use the password at this time; this is only for setup.\n*\n"
+    )
     while True:
-        password = getpass.getpass("* Enter your wallet password: ")
+        password = getpass.getpass(
+            "* Enter your wallet password (minimum 8 characters): "
+        )
         confirm_password = getpass.getpass("* Confirm your wallet password: ")
 
-        if password == confirm_password:
+        if len(password) >= 8 and password == confirm_password:
             return password
+        elif len(password) < 8:
+            print("* Password must be at least 8 characters. Please try again.")
         else:
             print("* Passwords do not match. Please try again.")
 
 
 def get_bytes_address(sx_address):
     try:
-        result = subprocess.check_output([config.servnode, "convert-address", sx_address])
+        result = subprocess.check_output(
+            [config.servnode, "convert-address", sx_address]
+        )
         output_lines = result.decode("utf-8").splitlines()
         for line in output_lines:
             if line.startswith("Bytes:"):
