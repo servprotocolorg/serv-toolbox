@@ -121,7 +121,7 @@ def finish_node() -> None:
     print_stars()
     print("* Goodbye!")
     print_stars()
-    return
+    raise SystemExit(0)
 
 
 def ask_yes_no(question: str) -> bool:
