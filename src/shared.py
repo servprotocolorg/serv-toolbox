@@ -74,8 +74,12 @@ def parse_flags(parser):
         finish_node()
 
     if args.stats:
-        status_command = f"{config.servnode} status | jq -r '.SyncInfo | \"Latest Block: \(.latest_block_height) Block Time: \(.latest_block_time | strptime(\"%Y-%m-%dT%H:%M:%S%Z\") | strftime(\"%Y-%m-%d %H:%M:%S\")) Catching Up: \(.catching_up)'"
-        run_command(status_command)
+        stats_command = "/home/servuser/serv/servnode status | jq -r '.SyncInfo | \"Latest Block: \(.latest_block_height) Block Time: \(.latest_block_time | strptime(\"%Y-%m-%dT%H:%M:%S%Z\") | strftime(\"%Y-%m-%d %H:%M:%S\")) Catching Up: \(.catching_up)'"
+        try:
+            result = subprocess.run(stats_command, shell=True, check=True, capture_output=True, text=True)
+            print("Command output:", result.stdout)
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with return code {e.returncode}. Output: {e.stdout}")
         finish_node()
 
     if args.update:
