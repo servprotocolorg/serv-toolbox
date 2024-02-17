@@ -53,15 +53,15 @@ class Config:
         self.user_home_dir = path.expanduser("~")
         self.dotenv_file = f"{self.user_home_dir}/.servvars.env"
         self.active_user = path.split(self.user_home_dir)[-1]
-        self.serv_dir = environ.get("SERV_DIR") or path.join(self.user_home_dir, "serv")
+        self.serv_dir = path.join(self.user_home_dir, "serv")
         self.servnode = path.join(self.serv_dir, "servnode")
-        self.serv_config_dir = environ.get("SERV_CONFIG_DIR") or path.join(
-            self.user_home_dir, ".serv", "config"
-        )
+        self.serv_config_dir = path.join(self.user_home_dir, ".serv", "config")
         self.serv_conf = path.join(self.serv_config_dir, "config.toml")
         self.serv_client = path.join(self.serv_config_dir, "client.toml")
         self.serv_genesis = path.join(self.serv_config_dir, "genesis.json")
-        self.priv_validator_key = path.join(self.serv_config_dir, "priv_validator_key.json")
+        self.priv_validator_key = path.join(
+            self.serv_config_dir, "priv_validator_key.json"
+        )
         self.toolbox_location = path.join(self.user_home_dir, "serv-toolbox")
         self.password_path = path.join(self.serv_dir, "passphrase.txt")
         self.servnode_service_file = path.join(
