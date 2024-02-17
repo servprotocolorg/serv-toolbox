@@ -45,7 +45,7 @@ def install_serv_node() -> None:
             answer = ask_yes_no(f"* You picked {short_name} as your validator short code name, is this correct?")
             if answer:
                 # Open file
-                with open("/tmp/config.json", "r") as file:
+                with open("/tmp/config.toml", "r") as file:
                     filedata = file.read()
                 # Update settings
                 filedata = filedata.replace('moniker = "Serv-0"', f'moniker = "{answer}"')
