@@ -1,8 +1,8 @@
 import os
 import subprocess
-from colorama import Fore, Style, Back
+from colorama import Fore
 from config import print_stuff, config
-from shared import finish_node, ask_yes_no, process_command, run_command
+from shared import ask_yes_no, process_command, run_command
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace

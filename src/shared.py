@@ -1,6 +1,7 @@
 import subprocess
 import os
 import json
+from colorama import Fore, Style, Back
 from dotenv import load_dotenv
 from config import print_stuff, config
 from typing import Tuple
@@ -24,6 +25,7 @@ def load_var_file(var_file):
 
 
 def parse_flags(parser):
+    print(Fore.MAGENTA)
     # Add the arguments
     parser.add_argument(
         "-u",
