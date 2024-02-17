@@ -1,22 +1,29 @@
 import argparse
 from config import print_stuff, config
-from shared import parse_flags, loader_intro, load_var_file
+from shared import parse_flags, loader_intro, load_var_file, get_node_status, display_node_info
 from install import install_check
 
 def app():
     # Load env
     load_var_file(config.dotenv_file)
-    # Clear screen, show logo
-    loader_intro()
-
-    # Check Install Stats
-    install_check()
-    # Install SERV Node
     
     # Run parser if flags added
     parser = argparse.ArgumentParser(description="Serv Validator Toolbox - Help Menu by EasyNode.pro")
     parse_flags(parser)
-    # Run regular validator node
+    
+    # Clear screen, show logo
+    loader_intro()
+
+    # Check Installation Status
+    install_check()
+    
+    # Run stats cause why not atm?
+    # Get node status
+    node_status = get_node_status()
+
+    # Display node info
+    display_node_info(node_status)
+    
     
 
 if __name__ == "__main__":

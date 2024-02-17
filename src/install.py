@@ -15,9 +15,10 @@ def install_check() -> None:
     print("* Checking File Configuration")
     print_stars()
     if os.path.isdir(config.serv_dir) and os.path.isdir(config.serv_config_dir) and os.path.isfile(config.serv_conf) and os.path.isdir(config.toolbox_location):
-        print(f"* SERV Node is already installed at {config.serv_dir}")
+        # Already installed, return and run main app
         return
     else:
+        # Not installed! Let's install it!
         print(f"* SERV Node is not installed at {config.serv_dir}")
         answer = ask_yes_no("* Would you like to install SERV Node now?")
         if answer:
