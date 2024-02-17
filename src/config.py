@@ -53,7 +53,7 @@ class Config:
         self.active_user = path.split(self.user_home_dir)[-1]
         self.serv_dir = environ.get("SERV_DIR") or path.join(self.user_home_dir, "serv")
         self.servnode = path.join(self.serv_dir, "servnode")
-        self.serv_config_dir = environ.get("SERV_CONFIG_DIR") or f"{self.user_home_dir}/.serv/config"
+        self.serv_config_dir = environ.get("SERV_CONFIG_DIR") or path.join(self.user_home_dir, ".serv", "config")
         self.serv_conf = path.join(self.serv_config_dir, "config.toml")
         self.serv_client = path.join(self.serv_config_dir, "client.toml")
         self.serv_genesis = path.join(self.serv_config_dir, "genesis.json")
