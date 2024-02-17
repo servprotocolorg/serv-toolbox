@@ -190,14 +190,26 @@ def get_node_status():
 def parse_block_time(timestamp_str):
     # Try to parse the timestamp using a regular expression
     match = re.match(
-        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)(Z)?$", timestamp_str
+        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)([Z+-]\d{2}:\d{2})?$",
+        timestamp_str,
     )
     if match:
-        timestamp, utc_offset = match.groups()
-        return datetime.strptime(
-            timestamp,
-            "%Y-%m-%dT%H:%M:%S.%f" if "." in timestamp else "%Y-%m-%dT%H:%M:%S",
-        ).replace(tzinfo=timezone.utc)
+        timestamp, tz_offset = match.groups()
+        if "." in timestamp:
+            timestamp_format = "%Y-%m-%dT%H:%M:%S.%f"
+        else:
+            timestamp_format = "%Y-%m-%dT%H:%M:%S"
+
+        timestamp = datetime.strptime(timestamp, timestamp_format)
+
+        # Apply timezone offset if present
+        if tz_offset and tz_offset != "Z":
+            tz_offset_minutes = int(tz_offset[-2:]) + int(tz_offset[-5:-3]) * 60
+            timestamp = timestamp.replace(
+                tzinfo=timezone(timedelta(minutes=tz_offset_minutes))
+            )
+
+        return timestamp
     else:
         return None
 
@@ -214,7 +226,7 @@ def display_node_info(node_status):
         # Convert the latest_block_time to a readable format
         latest_block_time = parse_block_time(latest_block_time_str)
         latest_block_time_str = (
-            latest_block_time.strftime("%Y-%m-%d %H:%M:%S")
+            latest_block_time.strftime("%Y-%m-%d %H:%M:%S %Z")
             if latest_block_time
             else "N/A"
         )
