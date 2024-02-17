@@ -187,8 +187,8 @@ def display_node_info(node_status):
         latest_block_time = sync_info.get("latest_block_time", "N/A")
         catching_up = sync_info.get("catching_up", False)
 
-        print(f"Latest Block Height: {latest_block_height}")
-        print(f"Latest Block Time: {latest_block_time}")
-        print(f"Catching Up: {catching_up}")
+        print(f"* Latest Block Height: {latest_block_height}")
+        print(f"* Latest Block Time: {latest_block_time}")
+        print(f"* Catching Up: {catching_up}")
     else:
-        print("Failed to retrieve node status.")
+        print("* Failed to retrieve node status.")
