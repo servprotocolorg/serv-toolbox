@@ -260,6 +260,10 @@ def set_var(env_file, key_name, update_name):
     return
 
 
+def validate_env_var(value):
+    return value is not None and value != "" and value not in ["True", "False"]
+
+
 def ask_for_wallet_password():
     print(
         "* Please set a wallet password for this server. We won't save or use the password at this time; this is only for setup.\n*\n"

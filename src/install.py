@@ -10,6 +10,7 @@ from shared import (
     run_command_and_return_output,
     finish_node,
     set_address_vars,
+    validate_env_var,
 )
 
 # Setup print stuff from config class print_stuff
@@ -29,14 +30,17 @@ def install_check() -> None:
         and os.path.isdir(config.toolbox_location)
     ):
         # Already installed, check for variables and return
-        if (
-            not os.environ.get("SERV_WALLET_ADDRESS")
-            or not os.environ.get("SERV_SERVER_ADDRESS")
-            or not os.environ.get("SERV_EVM_ADDRESS")
+        serv_wallet_address = os.environ.get("SERV_WALLET_ADDRESS")
+        serv_server_address = os.environ.get("SERV_SERVER_ADDRESS")
+        serv_evm_address = os.environ.get("SERV_EVM_ADDRESS")
+
+        if not all(
+            validate_env_var(var)
+            for var in [serv_wallet_address, serv_server_address, serv_evm_address]
         ):
             print_stars()
             print(
-                f"* Missing SERV_WALLET_ADDRESS, SERV_SERVER_ADDRESS, or SERV_EVM_ADDRESS in {config.dotenv_file}\n* We need to collect your information to run the toolbox properly.\n* Please enter your wallet password below to continue."
+                f"* Missing or invalid values for SERV_WALLET_ADDRESS, SERV_SERVER_ADDRESS, or SERV_EVM_ADDRESS in {config.dotenv_file}\n* We need to collect your information to run the toolbox properly.\n* Please enter your wallet password below to continue."
             )
             wallet_password = ask_for_wallet_password()
             set_address_vars(wallet_password)
