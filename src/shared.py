@@ -1,5 +1,6 @@
 import subprocess
 import os
+import shlex
 from dotenv import load_dotenv
 from config import print_stuff, config
 from typing import Tuple
@@ -74,7 +75,7 @@ def parse_flags(parser):
         finish_node()
 
     if args.stats:
-        status_command = f"{config.servnode} status | jq -r '.SyncInfo | \"Latest Block: \(.latest_block_height) Block Time: \(.latest_block_time | strptime(\"%Y-%m-%dT%H:%M:%S%Z\") | strftime(\"%Y-%m-%d %H:%M:%S\")) Catching Up: \(.catching_up)'"
+        status_command = f"{config.servnode} status | jq -r {shlex.quote('.SyncInfo | \"Latest Block: \(.latest_block_height) Block Time: \(.latest_block_time | strptime(\"%Y-%m-%dT%H:%M:%S%Z\") | strftime(\"%Y-%m-%d %H:%M:%S\")) Catching Up: \(.catching_up)')}"
         process_command(status_command)
         finish_node()
 
