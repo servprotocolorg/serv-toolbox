@@ -71,7 +71,8 @@ class Config:
         self.rpc_endpoints = ["https://rpc.serv.service"]
         self.rpc_endpoints_max_connection_retries = 10
         self.servnode_tmp_path = "/tmp/servnode"
-        self.folder_checks = ["serv", "serv0", "serv1", "serv2", "serv3", "serv4"]
+        self.genesis_tmp_path = "/tmp/genesis.json"
+        self.config_tmp_path = "/tmp/config.toml"
 
     def validate(self):
         essential_vars = [
@@ -90,7 +91,8 @@ class Config:
             "rpc_endpoints",
             "rpc_endpoints_max_connection_retries",
             "servnode_tmp_path",
-            "folder_checks",
+            "genesis_tmp_path",
+            "config_tmp_path",
         ]
         for var in essential_vars:
             if not getattr(self, var):

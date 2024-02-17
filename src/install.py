@@ -70,8 +70,8 @@ def install_serv_node() -> None:
     if not os.path.isdir(config.serv_dir):
         os.makedirs(config.serv_dir)
         process_command(f"wget -O {config.servnode} rpc.serv.services/servnode")
-        process_command(f"wget -O /tmp/genesis.json rpc.serv.services/genesis")
-        process_command(f"wget -O /tmp/config.toml rpc.serv.services/config")
+        process_command(f"wget -O {config.genesis_tmp_path} rpc.serv.services/genesis")
+        process_command(f"wget -O {config.config_tmp_path} rpc.serv.services/config")
         process_command(f"chmod +x {config.servnode}")
         print(f"* Created {config.serv_dir} directory & files")
         # open genesis.json and config.toml to read & update
@@ -84,7 +84,7 @@ def install_serv_node() -> None:
             )
             if answer:
                 # Open file
-                with open("/tmp/config.toml", "r") as file:
+                with open(config.config_tmp_path, "r") as file:
                     filedata = file.read()
                 # Update settings
                 filedata = filedata.replace(
@@ -92,15 +92,15 @@ def install_serv_node() -> None:
                 )
                 filedata = filedata.replace('log_level = "info"', 'log_level = "warn"')
                 # Save file
-                with open("/tmp/config.toml", "w") as file:
+                with open(config.config_tmp_path, "w") as file:
                     file.write(filedata)
                 # Init network
                 process_command(
                     f"{config.servnode} init {short_name} --chain-id serv_43970-1"
                 )
                 # Move custom files
-                process_command(f"mv /tmp/genesis.json {config.serv_genesis}")
-                process_command(f"mv /tmp/config.toml {config.serv_conf}")
+                process_command(f"mv {config.genesis_tmp_path} {config.serv_genesis}")
+                process_command(f"mv {config.config_tmp_path} {config.serv_conf}")
                 # Update chain-id
                 with open(config.serv_client, "r") as file:
                     filedata = file.read()
