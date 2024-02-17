@@ -117,8 +117,6 @@ def install_serv_node() -> None:
             shell=True,
             check=True,
         )
-        # Reload daemon
-        subprocess.run("sudo systemctl daemon-reload", shell=True, check=True)
         # Enable service
         subprocess.run("sudo systemctl enable servnode.service", shell=True, check=True)
         # Start service
