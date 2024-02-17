@@ -241,9 +241,9 @@ def display_node_info(node_status):
         )
 
         print(f"* Current Stats For {moniker}")
-        print(f"* Wallet Address: {os.environ.get("SERV_WALLET_ADDRESS")}")
-        print(f"* Server Address: {os.environ.get("SERV_SERVER_ADDRESS")}")
-        print(f"* EVM Address: {os.environ.get("SERV_EVM_ADDRESS")}")
+        print(f"* Wallet Address: {os.environ.get('SERV_WALLET_ADDRESS')}")
+        print(f"* Server Address: {os.environ.get('SERV_SERVER_ADDRESS')}")
+        print(f"* EVM Address: {os.environ.get('SERV_EVM_ADDRESS')}")
         print(f"* Latest Block Height: {latest_block_height}")
         print(f"* Latest Block Time: {latest_block_time_str}")
         print(f"* Catching Up: {catching_up}")
