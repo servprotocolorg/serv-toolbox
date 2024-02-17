@@ -59,6 +59,7 @@ class Config:
         self.serv_genesis = path.join(self.serv_config_dir, "genesis.json")
         self.toolbox_location = path.join(self.user_home_dir, "serv-toolbox")
         self.password_path = path.join(self.serv_dir, "passphrase.txt")
+        self.servnode_service_file = path.join(self.toolbox_location, "src", "bin", "servnode.service")
         self.external_ip = get_url()
         self.rpc_endpoints = ["https://rpc.serv.service"]
         self.rpc_endpoints_max_connection_retries = 10
@@ -77,6 +78,7 @@ class Config:
             "serv_conf",
             "toolbox_location",
             "password_path",
+            "servnode_service_file",
             "external_ip",
             "rpc_endpoints",
             "rpc_endpoints_max_connection_retries",

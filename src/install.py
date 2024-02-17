@@ -59,12 +59,14 @@ def install_serv_node() -> None:
                 # Move custom files
                 process_command(f"mv /tmp/genesis.json {config.serv_genesis}")
                 process_command(f"mv /tmp/config.toml {config.serv_conf}")
+                # Update chain-id
                 with open(config.serv_client, "r") as file:
                     filedata = file.read()
                 filedata = filedata.replace('chain-id = ""', 'chain-id = "serv_43970-1"')
         print(f"* SERV Node installed at {config.serv_dir}")
         print_stars()
-        print("* Creating wallet")
+        # Wallet Stuff
+        print("* Creating/Importing SERV wallet")
         answer = ask_yes_no(f"* Would you like to create a wallet for your validator node?")
         if answer:
             run_command(f"{config.servnode} keys add {config.active_user}")
@@ -74,5 +76,22 @@ def install_serv_node() -> None:
             if answer:
                 run_command(f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"')
                 pass
+        # Service Configuration Stuff
+        with open(config.servnode_service_file, "r") as file:
+            filedata = file.read()
+        filedata = filedata.replace("User=servuser", f"User={config.active_user}")
+        filedata = filedata.replace("WorkingDirectory=/home/servuser/serv", f"WorkingDirectory={config.serv_dir}")
+        filedata = filedata.replace("ExecStart=/home/servuser/serv/servnode start", f"ExecStart={config.servnode} start")
+        # Save file in /tmp as we need to be sudo to move it to /etc/systemd/system
+        with open("/tmp/servnode.service", "w") as file:
+            file.write(filedata)
+        # Move file to /etc/systemd/system
+        subprocess.run(f"sudo mv /tmp/servnode.service /etc/systemd/system/servnode.service", shell=True, check=True)
+        # Reload daemon
+        subprocess.run("sudo systemctl daemon-reload", shell=True, check=True)
+        # Enable service
+        subprocess.run("sudo systemctl enable servnode.service", shell=True, check=True)
+        # Start service
+        subprocess.run("sudo systemctl start servnode.service", shell=True, check=True)
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
