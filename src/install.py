@@ -32,18 +32,30 @@ def install_check() -> None:
         return
     else:
         # Not installed! Let's install it!
-        print(f"* SERV Node is not installed at {config.serv_dir}")
-        answer = ask_yes_no("* Would you like to install SERV Node now? (y/n)")
-        if answer:
-            # Install SERV Node
-            print_stars()
-            print("* Installing SERV Node")
-            print_stars()
-            install_serv_node()
-            print(Fore.MAGENTA)
-        else:
-            print_stars()
-            print("* Exiting SERV Node Installer")
+        start_serv_install()
+    if not os.environ.get("SERV_WALLET_ADDRESS") or not os.environ.get("SERV_SERVER_ADDRESS") or not os.environ.get("SERV_EVM_ADDRESS"):
+        print_stars()
+        print(
+            f"* Missing SERV_WALLET_ADDRESS, SERV_SERVER_ADDRESS, or SERV_EVM_ADDRESS in {config.dotenv_file}\n* We need to collect your information to run the toolbox properly.\n* Please enter your wallet password below to continue."
+        )
+        wallet_password = ask_for_wallet_password()
+        set_address_vars(wallet_password)
+        print_stars()
+
+
+def start_serv_install() -> None:
+    print(f"* SERV Node is not installed at {config.serv_dir}")
+    answer = ask_yes_no("* Would you like to install SERV Node now? (y/n)")
+    if answer:
+        # Install SERV Node
+        print_stars()
+        print("* Installing SERV Node")
+        print_stars()
+        install_serv_node()
+        print(Fore.MAGENTA)
+    else:
+        print_stars()
+        print("* Exiting SERV Node Installer")
 
 
 def install_serv_node() -> None:
