@@ -186,9 +186,6 @@ def get_node_status(retry_limit=3, retry_delay=2):
             return json.loads(result.stdout)
         except subprocess.CalledProcessError as e:
             if attempt < retry_limit:
-                print(
-                    f"* Attempt {attempt}: Command failed with return code {e.returncode}. Retrying in {retry_delay} seconds..."
-                )
                 time.sleep(retry_delay)
             else:
                 print(
