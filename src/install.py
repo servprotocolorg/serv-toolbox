@@ -7,6 +7,7 @@ from shared import (
     ask_yes_no,
     process_command,
     run_command,
+    run_command_and_return_output,
     set_var,
     finish_node,
     ask_for_wallet_password,
@@ -103,10 +104,10 @@ def install_serv_node() -> None:
                 print_output=True,
             )
             if result:
-                set_address_vars(wallet_password)
                 print(
                     f"{Fore.YELLOW}* Backup your mnemonic phrase above before proceeding any further. Do not give your phrase away or lose it!{Fore.MAGENTA}\n*\n"
                 )
+                set_address_vars(wallet_password)
             else:
                 print(
                     f"* Error creating wallet, please try again or import a wallet instead."
@@ -151,20 +152,20 @@ def install_serv_node() -> None:
         subprocess.run("sudo systemctl enable servnode.service", shell=True, check=True)
         # Start service
         subprocess.run("sudo systemctl start servnode.service", shell=True, check=True)
-        result = run_command(f"{config.servnode} keys list", print_output=True)
+        result = run_command_and_return_output(f"yes {wallet_password} | {config.servnode} keys list", print_output=True)
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
 
 
 def set_address_vars(wallet_password) -> None:
     print("* Getting wallet address")
-    address = run_command(
+    address = run_command_and_return_output(
         f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a",
         print_output=False,
     )
     set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
     print("* Getting server address")
-    server_address = run_command(
+    server_address = run_command_and_return_output(
         f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val",
         print_output=False,
     )

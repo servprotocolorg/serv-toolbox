@@ -176,6 +176,14 @@ def run_command(command: str, shell=True, print_output=True) -> bool:
             print(f"* Error executing command: {e}")
         return False
 
+def run_command_and_return_output(command):
+    try:
+        result = subprocess.check_output(command, shell=True, text=True)
+        return result.strip()  # Remove leading/trailing whitespace
+    except subprocess.CalledProcessError:
+        print("Error executing the command.")
+        return None
+
 
 def get_node_status(retry_limit=3, retry_delay=2):
     for attempt in range(1, retry_limit + 1):
