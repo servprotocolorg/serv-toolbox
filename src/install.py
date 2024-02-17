@@ -53,11 +53,11 @@ def install_serv_node() -> None:
                 # Save file
                 with open("/tmp/config.toml", "w") as file:
                     file.write(filedata)
+                # Init network
+                process_command(f"{config.servnode} init {short_name} --chain-id serv_43970-1", capture_output=True)
                 # Move custom files
                 process_command(f"mv /tmp/genesis.json {config.serv_genesis}")
                 process_command(f"mv /tmp/config.toml {config.serv_conf}")
-                # Init network
-                process_command(f"{config.servnode} init {short_name} --chain-id serv_43970-1", capture_output=True)
                 with open(config.serv_client, "r") as file:
                     filedata = file.read()
                 filedata = filedata.replace('chain-id = ""', 'chain-id = "serv_43970-1"')
