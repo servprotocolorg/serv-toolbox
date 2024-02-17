@@ -89,42 +89,28 @@ def install_serv_node() -> None:
         )
         if answer:
             print(Fore.WHITE)
-            success, output = run_command(
+            result = run_command(
                 f"{config.servnode} keys add {config.active_user}", print_output=True
             )
-            if success:
-                # Extract the address and mnemonic from the output
-                address = re.search(r"address: (\w+)", output)
-                mnemonic = re.search(
-                    r"**Important\*\* write this mnemonic phrase in a safe place.\nIt is the only way to recover your account if you ever forget your password.\n\n(.+)",
-                    output,
-                    re.DOTALL,
-                )
-                set_var(config.dotenv_file, "SERV_ADDRESS", address)
-                with open(config.serv_mnemonic, "w") as file:
-                    file.write(mnemonic)
+            if result:
                 print(
-                    "* We saved a copy of your mnemonic phrase at ~/.serv/config/mnemonic.txt"
-                )
-                input(
-                    f"{Fore.YELLOW}* Backup your mnemonic phrase and press enter to continue. Do not give your phrase away or lose it!{Fore.MAGENTA}"
+                    f"{Fore.YELLOW}* Backup your mnemonic phrase above and press enter to continue. Do not give your phrase away or lose it!{Fore.MAGENTA}"
                 )
             else:
-                print("* Failed to backup mnemonic, please save your mnemonic phrase manually! Do not share or lose it!")
-                finish_node()
+                print(
+                    f"* Error creating wallet, please try again or import a wallet instead."
+                )
+            finish_node()
+        
         else:
             answer = ask_yes_no(
                 f"* Skipping wallet creation, would you like to import a wallet now instead? (y/n)"
             )
             if answer:
-                success, output = run_command(
+                run_command(
                     f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"',
                     print_output=True,
                 )
-                if success:
-                    # Extract the address and mnemonic from the output
-                    address = re.search(r"address: (\w+)", output)
-                    set_var(config.dotenv_file, "SERV_ADDRESS", address)
             else:
                 finish_node()
         # Service Configuration Stuff

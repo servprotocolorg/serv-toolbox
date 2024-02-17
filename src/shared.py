@@ -159,32 +159,21 @@ def process_command(command: str, shell=True, print_output=True) -> Tuple[bool, 
     return False, result.stderr
 
 
-def run_command(command: str, shell=True, print_output=True) -> (bool, str):
+def run_command(command: str, shell=True, print_output=True) -> bool:
     try:
-        # Use Popen for interactive commands
-        process = subprocess.Popen(
-            command,
-            shell=shell,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        output, error = process.communicate()
-
         if print_output:
-            print(output)
-
-        if process.returncode == 0:
-            return True, output
+            subprocess.run(command, shell=shell, check=True)
         else:
-            print(
-                f"* Error executing command. Return code: {process.returncode}. Error: {error}"
-            )
-            return False, None
-
-    except Exception as e:
-        print(f"* Exception while executing command: {e}")
-        return False, None
+            # Suppress the output if print_output is set to False
+            with open(os.devnull, "w") as fnull:
+                subprocess.run(
+                    command, shell=shell, check=True, stdout=fnull, stderr=fnull
+                )
+        return True
+    except subprocess.CalledProcessError as e:
+        if print_output:
+            print(f"* Error executing command: {e}")
+        return False
 
 
 def get_node_status(retry_limit=3, retry_delay=2):
@@ -250,7 +239,6 @@ def display_node_info(node_status):
         print(f"* Catching Up: {catching_up}")
     else:
         print("* Failed to retrieve node status.")
-
 
 # check if a var exists in your .env file, unset and reset if exists to avoid bad stuff
 def set_var(env_file, key_name, update_name):
