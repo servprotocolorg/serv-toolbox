@@ -115,7 +115,6 @@ def parse_flags(parser):
 # loader intro splash screen
 def loader_intro():
     p = """*
-*
 * ███████╗███████╗██████╗ ██╗   ██╗                           
 * ██╔════╝██╔════╝██╔══██╗██║   ██║                           
 * ███████╗█████╗  ██████╔╝██║   ██║                           
@@ -132,7 +131,6 @@ def loader_intro():
 *
 *     SERV Node Management
 *     created by Patrick @ https://EasyNode.pro
-*
 *"""
     print(p)
     return
@@ -140,7 +138,7 @@ def loader_intro():
 
 def finish_node() -> None:
     print_stars()
-    print("* Goodbye!")
+    print("* Thanks for using the SERV Toolbox, Goodbye!")
     print_stars()
     raise SystemExit(0)
 
