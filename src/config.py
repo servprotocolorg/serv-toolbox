@@ -61,7 +61,7 @@ class Config:
         self.serv_conf = path.join(self.serv_config_dir, "config.toml")
         self.serv_client = path.join(self.serv_config_dir, "client.toml")
         self.serv_genesis = path.join(self.serv_config_dir, "genesis.json")
-        self.serv_mnemonic = path.join(self.serv_config_dir, "mnemonic.txt")
+        self.priv_validator_key = path.join(self.serv_config_dir, "priv_validator_key.json")
         self.toolbox_location = path.join(self.user_home_dir, "serv-toolbox")
         self.password_path = path.join(self.serv_dir, "passphrase.txt")
         self.servnode_service_file = path.join(
@@ -82,8 +82,12 @@ class Config:
             "dotenv_file",
             "active_user",
             "serv_dir",
+            "servnode",
             "serv_config_dir",
             "serv_conf",
+            "serv_client",
+            "serv_genesis",
+            "priv_validator_key",
             "toolbox_location",
             "password_path",
             "servnode_service_file",
