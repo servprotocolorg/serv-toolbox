@@ -152,7 +152,9 @@ def install_serv_node() -> None:
         subprocess.run("sudo systemctl enable servnode.service", shell=True, check=True)
         # Start service
         subprocess.run("sudo systemctl start servnode.service", shell=True, check=True)
-        result = run_command_and_return_output(f"yes {wallet_password} | {config.servnode} keys list", print_output=True)
+        result = run_command_and_return_output(
+            f"yes {wallet_password} | {config.servnode} keys list", print_output=True
+        )
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
 
@@ -160,14 +162,12 @@ def install_serv_node() -> None:
 def set_address_vars(wallet_password) -> None:
     print("* Getting wallet address")
     address = run_command_and_return_output(
-        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a",
-        print_output=False,
+        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a"
     )
     set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
     print("* Getting server address")
     server_address = run_command_and_return_output(
-        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val",
-        print_output=False,
+        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val"
     )
     set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
     print("* Getting emv address")
