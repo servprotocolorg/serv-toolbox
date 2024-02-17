@@ -33,7 +33,11 @@ def install_check() -> None:
     else:
         # Not installed! Let's install it!
         start_serv_install()
-    if not os.environ.get("SERV_WALLET_ADDRESS") or not os.environ.get("SERV_SERVER_ADDRESS") or not os.environ.get("SERV_EVM_ADDRESS"):
+    if (
+        os.environ.get("SERV_WALLET_ADDRESS") is None
+        or os.environ.get("SERV_SERVER_ADDRESS") is None
+        or os.environ.get("SERV_EVM_ADDRESS") is None
+    ):
         print_stars()
         print(
             f"* Missing SERV_WALLET_ADDRESS, SERV_SERVER_ADDRESS, or SERV_EVM_ADDRESS in {config.dotenv_file}\n* We need to collect your information to run the toolbox properly.\n* Please enter your wallet password below to continue."
