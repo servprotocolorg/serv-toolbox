@@ -102,13 +102,16 @@ def ask_yes_no(question: str) -> bool:
         return True
     return False
 
-def process_command(command: str, capture_output: bool = False) -> str:
+def process_command(command: str, capture_output: bool = False, interactive: bool = False) -> str:
     # Set stdout and stderr to subprocess.PIPE if capture_output is True
     stdout_option = subprocess.PIPE if capture_output else None
     stderr_option = subprocess.PIPE if capture_output else None
 
+    # Set stdin to subprocess.PIPE if interactive is True
+    stdin_option = subprocess.PIPE if interactive else None
+
     # Run the command
-    process = subprocess.Popen(command, shell=True, stdout=stdout_option, stderr=stderr_option)
+    process = subprocess.Popen(command, shell=True, stdout=stdout_option, stderr=stderr_option, stdin=stdin_option)
 
     # Capture the output and error if capture_output is True
     output, error = process.communicate()

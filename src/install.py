@@ -54,7 +54,7 @@ def install_serv_node() -> None:
                 with open("/tmp/config.toml", "w") as file:
                     file.write(filedata)
                 # Init network
-                process_command(f"{config.servnode} init {short_name} --chain-id serv_43970-1", capture_output=True)
+                process_command(f"{config.servnode} init {short_name} --chain-id serv_43970-1", capture_output=True, interactive=True)
                 # Move custom files
                 process_command(f"mv /tmp/genesis.json {config.serv_genesis}")
                 process_command(f"mv /tmp/config.toml {config.serv_conf}")
@@ -66,12 +66,12 @@ def install_serv_node() -> None:
         print("* Creating wallet")
         answer = ask_yes_no(f"* Would you like to create a wallet for your validator node?")
         if answer:
-            process_command(f"{config.servnode} keys add {config.active_user}", capture_output=True)
+            process_command(f"{config.servnode} keys add {config.active_user}", capture_output=True, interactive=True)
         else:
             print(f"* Skipping wallet creation")
             answer = ask_yes_no(f"* Would you like to import a wallet now?")
             if answer:
-                process_command(f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"', capture_output=True)
+                process_command(f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"', capture_output=True, interactive=True)
                 pass
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
