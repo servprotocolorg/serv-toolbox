@@ -51,7 +51,7 @@ def install_serv_node() -> None:
                 filedata = filedata.replace('moniker = "Serv-0"', f'moniker = "{answer}"')
                 filedata = filedata.replace('log_level = "info"', 'log_level = "warn"')
                 # Save file
-                with open(config.serv_conf, "w") as file:
+                with open("/tmp/config.toml", "w") as file:
                     file.write(filedata)
                 # Move custom files
                 process_command(f"mv /tmp/genesis.json {config.serv_genesis}")
