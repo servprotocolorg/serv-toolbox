@@ -2,6 +2,7 @@ import subprocess
 import os
 from dotenv import load_dotenv
 from config import print_stuff, config
+from typing import Tuple
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace
@@ -102,15 +103,16 @@ def ask_yes_no(question: str) -> bool:
         return True
     return False
 
-def process_command(command: str) -> None:
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+def process_command(command: str, shell=True, print_output=True) -> Tuple[bool, str]:
+    result = subprocess.run(command, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-    # Read output and error line by line and print them as they come
-    for line in process.stdout:
-        print(line.strip())
+    # Command was successful
+    if result.returncode == 0:
+        if print_output and result.stdout:
+            print(result.stdout)
+        return True, result.stdout
 
-    for line in process.stderr:
-        print(line.strip())
-
-    # Wait for the process to finish
-    process.wait()
+    # Command failed
+    if print_output:
+        print(f"Error executing command: {result.stderr}")
+    return False, result.stderr
