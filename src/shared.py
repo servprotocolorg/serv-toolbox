@@ -262,7 +262,7 @@ def ask_for_wallet_password():
 
 def get_bytes_address(sx_address):
     try:
-        result = subprocess.check_output(["./servnode", "convert-address", sx_address])
+        result = subprocess.check_output([config.servnode, "convert-address", sx_address])
         output_lines = result.decode("utf-8").splitlines()
         for line in output_lines:
             if line.startswith("Bytes:"):
