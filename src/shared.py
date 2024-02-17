@@ -41,6 +41,13 @@ def parse_flags(parser):
         action="store_true",
         help="Will update and/or restart your SERV Node.",
     )
+    
+    parser.add_argument(
+        "-r",
+        "--restart",
+        action="store_true",
+        help="Will restart your SERV Node service.",
+    )
 
     parser.add_argument(
         "-s",
@@ -74,6 +81,12 @@ def parse_flags(parser):
     # Add other args here
     if args.claim:
         # We'll do something here soon!
+        finish_node()
+        
+    if args.restart:
+        print("* Restarting SERV Node service...")
+        run_command("sudo systemctl restart servnode", print_output=False)
+        print("* SERV Node service restarted.")
         finish_node()
 
     if args.installer:
