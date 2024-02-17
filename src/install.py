@@ -1,6 +1,5 @@
 import os
 import subprocess
-import re
 from colorama import Fore
 from config import print_stuff, config
 from shared import (
@@ -8,10 +7,9 @@ from shared import (
     process_command,
     run_command,
     run_command_and_return_output,
-    set_var,
     finish_node,
     ask_for_wallet_password,
-    get_bytes_address,
+    set_address_vars
 )
 
 # Setup print stuff from config class print_stuff
@@ -157,19 +155,3 @@ def install_serv_node() -> None:
         )
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
-
-
-def set_address_vars(wallet_password) -> None:
-    print("* Getting wallet address")
-    address = run_command_and_return_output(
-        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a"
-    )
-    set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
-    print("* Getting server address")
-    server_address = run_command_and_return_output(
-        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val"
-    )
-    set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
-    print("* Getting emv address")
-    emv_address = get_bytes_address(str(address))
-    set_var(config.dotenv_file, "SERV_EMV_ADDRESS", str(emv_address))
