@@ -161,11 +161,11 @@ def set_address_vars(wallet_password) -> None:
         f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a",
         print_output=False,
     )
-    set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", address)
+    set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
     server_address = run_command(
         f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val",
         print_output=False,
     )
-    set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", server_address)
+    set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", str(server_address))
     emv_address = get_bytes_address(address)
-    set_var(config.dotenv_file, "SERV_EMV_ADDRESS", emv_address)
+    set_var(config.dotenv_file, "SERV_EMV_ADDRESS", str(emv_address))
