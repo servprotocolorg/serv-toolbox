@@ -186,6 +186,21 @@ def get_node_status():
         return None
 
 
+def parse_block_time(timestamp_str):
+    # Try to parse the timestamp using a regular expression
+    match = re.match(
+        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)(Z)?$", timestamp_str
+    )
+    if match:
+        timestamp, utc_offset = match.groups()
+        return datetime.strptime(
+            timestamp,
+            "%Y-%m-%dT%H:%M:%S.%f" if "." in timestamp else "%Y-%m-%dT%H:%M:%S",
+        ).replace(tzinfo=timezone.utc)
+    else:
+        return None
+
+
 def display_node_info(node_status):
     if node_status is not None:
         sync_info = node_status.get("SyncInfo", {})
@@ -196,11 +211,12 @@ def display_node_info(node_status):
         catching_up = sync_info.get("catching_up", False)
 
         # Convert the latest_block_time to a readable format
-        if latest_block_time_str != "N/A":
-            latest_block_time = datetime.strptime(
-                latest_block_time_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-            ).replace(tzinfo=timezone.utc)
-            latest_block_time_str = latest_block_time.strftime("%Y-%m-%d %H:%M:%S")
+        latest_block_time = parse_block_time(latest_block_time_str)
+        latest_block_time_str = (
+            latest_block_time.strftime("%Y-%m-%d %H:%M:%S")
+            if latest_block_time
+            else "N/A"
+        )
 
         print(f"* Current Stats For {moniker}")
         print(f"* Latest Block Height: {latest_block_height}")
