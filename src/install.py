@@ -25,7 +25,7 @@ def install_check() -> None:
     else:
         # Not installed! Let's install it!
         print(f"* SERV Node is not installed at {config.serv_dir}")
-        answer = ask_yes_no("* Would you like to install SERV Node now?")
+        answer = ask_yes_no("* Would you like to install SERV Node now? (y/n)")
         if answer:
             # Install SERV Node
             print_stars()
@@ -52,7 +52,7 @@ def install_serv_node() -> None:
         )
         if short_name:
             answer = ask_yes_no(
-                f"* You picked {short_name} as your validator short code name, is this correct?"
+                f"* You picked {short_name} as your validator short code name, is this correct? (y/n)"
             )
             if answer:
                 # Open file
@@ -84,19 +84,18 @@ def install_serv_node() -> None:
         # Wallet Stuff
         print("* Creating/Importing SERV wallet")
         answer = ask_yes_no(
-            f"* Would you like to create a wallet for your validator node?"
+            f"* Would you like to create a wallet for your validator node? (y/n)"
         )
         print(Fore.WHITE)
         if answer:
             run_command(f"{config.servnode} keys add {config.active_user}")
         else:
             print(f"* Skipping wallet creation")
-            answer = ask_yes_no(f"* Would you like to import a wallet now?")
+            answer = ask_yes_no(f"* Would you like to import a wallet now? (y/n)")
             if answer:
                 run_command(
                     f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"'
                 )
-                pass
         # Service Configuration Stuff
         with open(config.servnode_service_file, "r") as file:
             filedata = file.read()
