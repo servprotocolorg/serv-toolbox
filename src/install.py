@@ -94,13 +94,13 @@ def install_serv_node() -> None:
             )
             if result:
                 print(
-                    f"{Fore.YELLOW}* Backup your mnemonic phrase above and press enter to continue. Do not give your phrase away or lose it!{Fore.MAGENTA}"
+                    f"{Fore.YELLOW}* Backup your mnemonic phrase above before proceeding any further. Do not give your phrase away or lose it!{Fore.MAGENTA}\n*\n"
                 )
             else:
                 print(
                     f"* Error creating wallet, please try again or import a wallet instead."
                 )
-            finish_node()
+                finish_node()
         
         else:
             answer = ask_yes_no(
