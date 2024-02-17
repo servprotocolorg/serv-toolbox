@@ -1,9 +1,9 @@
 import subprocess
 import os
 import json
-import re
-from datetime import datetime, timezone, timedelta
-from colorama import Fore, Style, Back
+import time
+from datetime import datetime, timezone
+from colorama import Fore
 from dotenv import load_dotenv
 from config import print_stuff, config
 from typing import Tuple
@@ -170,21 +170,29 @@ def run_command(command: str, shell=True, print_output=True) -> bool:
         return True
     except subprocess.CalledProcessError as e:
         if print_output:
-            print(f"Error executing command: {e}")
+            print(f"* Error executing command: {e}")
         return False
 
 
-def get_node_status():
-    command = f"{config.servnode} status"
-
-    try:
-        result = subprocess.run(
-            command, shell=True, check=True, capture_output=True, text=True
-        )
-        return json.loads(result.stdout)
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code {e.returncode}. Output: {e.stdout}")
-        return None
+def get_node_status(retry_limit=3, retry_delay=2):
+    for attempt in range(1, retry_limit + 1):
+        try:
+            command = f"{config.servnode} status"
+            result = subprocess.run(
+                command, shell=True, check=True, capture_output=True, text=True
+            )
+            return json.loads(result.stdout)
+        except subprocess.CalledProcessError as e:
+            if attempt < retry_limit:
+                print(
+                    f"* Attempt {attempt}: Command failed with return code {e.returncode}. Retrying in {retry_delay} seconds..."
+                )
+                time.sleep(retry_delay)
+            else:
+                print(
+                    f"* Retry limit reached. Posting failure code. Last error message: {e}"
+                )
+                return None
 
 
 def parse_block_time(timestamp_str):
