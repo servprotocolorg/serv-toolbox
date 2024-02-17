@@ -189,7 +189,18 @@ def get_node_status():
 
 def parse_block_time(timestamp_str):
     try:
-        timestamp = datetime.fromisoformat(timestamp_str[:-1])
+        # Parse timestamp without fractional seconds
+        timestamp_without_fraction = timestamp_str.split(".")[0]
+        timestamp = datetime.strptime(timestamp_without_fraction, "%Y-%m-%dT%H:%M:%S")
+
+        # Extract and convert fractional seconds if present
+        fraction_seconds_str = (
+            timestamp_str.split(".")[1][:-1] if "." in timestamp_str else "0"
+        )
+        fraction_seconds = int(fraction_seconds_str) / 10 ** len(fraction_seconds_str)
+
+        timestamp = timestamp.replace(microsecond=int(fraction_seconds * 1e6))
+
         return timestamp.replace(tzinfo=timezone.utc)
     except ValueError:
         return None
