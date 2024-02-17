@@ -3,12 +3,13 @@ import subprocess
 from colorama import Fore
 from config import print_stuff, config
 from shared import (
+    ask_for_mnemonic,
+    ask_for_wallet_password,
     ask_yes_no,
     process_command,
     run_command,
     run_command_and_return_output,
     finish_node,
-    ask_for_wallet_password,
     set_address_vars
 )
 
@@ -118,8 +119,9 @@ def install_serv_node() -> None:
             )
             if answer:
                 wallet_password = ask_for_wallet_password()
+                mnemonic_phrase = ask_for_mnemonic()
                 run_command(
-                    f'yes {wallet_password} | {config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"',
+                    f'echo {mnemonic_phrase} | {config.servnode} keys add {config.active_user} --recover',
                     print_output=True,
                 )
                 set_address_vars(wallet_password)
