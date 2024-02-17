@@ -2,7 +2,7 @@ import os
 import subprocess
 from colorama import Fore
 from config import print_stuff, config
-from shared import ask_yes_no, process_command, run_command, set_var
+from shared import ask_yes_no, process_command, run_command, set_var, finish_node
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace
@@ -81,26 +81,28 @@ def install_serv_node() -> None:
                 )
         print(f"* SERV Node installed at {config.serv_dir}")
         print_stars()
-        # Wallet Stuff
+        # Wallet Creation or Import
         print("* Creating/Importing SERV wallet")
         answer = ask_yes_no(
             f"* Would you like to create a wallet for your validator node? (y/n)"
         )
-        print(Fore.WHITE)
         if answer:
-            run_command(f"{config.servnode} keys add {config.active_user}")
-        else:
-            print(f"* Skipping wallet creation")
-            answer = ask_yes_no(f"* Would you like to import a wallet now? (y/n)")
+            print(Fore.WHITE)
+            address, mnemonic = run_command(f"{config.servnode} keys add {config.active_user}")
+            set_var(config.dotenv_file, "SERV_ADDRESS", address)
+            with open(config.serv_mnemonic, "w") as file:
+                    file.write(mnemonic)
+            print("* We saved a copy of your mnemonic phrase at ~/.serv/config/mnemonic.txt")
+            input(f"{Fore.YELLOW}* Backup your mnemonic phrase and press enter to continue. Do not give your phrase away or lose it!{Fore.MAGENTA}")
+        else:            
+            answer = ask_yes_no(f"* Skipping wallet creation, would you like to import a wallet now instead? (y/n)")
             if answer:
                 address, mnemonic = run_command(
                     f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"'
                 )
                 set_var(config.dotenv_file, "SERV_ADDRESS", address)
-                with open(config.serv_mnemonic, "w") as file:
-                    file.write(mnemonic)
-                print("* We saved a copy of your mnemonic phrase at ~/.serv/config/mnemonic.txt")
-                input(f"{Fore.YELLOW}* Backup your mnemonic phrase and press enter to continue. Do not give your phrase away or lose it!{Fore.MAGENTA}")
+            else:
+                finish_node()
         # Service Configuration Stuff
         with open(config.servnode_service_file, "r") as file:
             filedata = file.read()
