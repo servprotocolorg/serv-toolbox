@@ -153,7 +153,7 @@ def install_serv_node() -> None:
         # Start service
         subprocess.run("sudo systemctl start servnode.service", shell=True, check=True)
         result = run_command_and_return_output(
-            f"yes {wallet_password} | {config.servnode} keys list", print_output=True
+            f"yes {wallet_password} | {config.servnode} keys list"
         )
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
