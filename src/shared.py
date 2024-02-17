@@ -334,10 +334,10 @@ def set_address_vars(wallet_password) -> None:
 
     if serv_wallet_address is None:
         print("* Getting wallet address")
-        address = run_command_and_return_output(
+        serv_wallet_address = run_command_and_return_output(
             f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a"
         )
-        set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(address))
+        set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", str(serv_wallet_address))
 
     if serv_server_address is None:
         print("* Getting server address")
@@ -348,7 +348,7 @@ def set_address_vars(wallet_password) -> None:
 
     if serv_evm_address is None:
         print("* Getting EVM address")
-        emv_address = get_bytes_address(str(address))
+        emv_address = get_bytes_address(str(serv_wallet_address))
         set_var(config.dotenv_file, "SERV_EVM_ADDRESS", str(emv_address))
 
 
