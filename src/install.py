@@ -26,6 +26,7 @@ def install_check() -> None:
             print("* Installing SERV Node")
             print_stars()
             install_serv_node()
+            print(Fore.MAGENTA)
         else:
             print_stars()
             print("* Exiting SERV Node Installer")
