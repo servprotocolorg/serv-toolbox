@@ -188,29 +188,10 @@ def get_node_status():
 
 
 def parse_block_time(timestamp_str):
-    # Try to parse the timestamp using a regular expression
-    match = re.match(
-        r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?)([Z+-]\d{2}:\d{2})?$",
-        timestamp_str,
-    )
-    if match:
-        timestamp, tz_offset = match.groups()
-        if "." in timestamp:
-            timestamp_format = "%Y-%m-%dT%H:%M:%S.%f"
-        else:
-            timestamp_format = "%Y-%m-%dT%H:%M:%S"
-
-        timestamp = datetime.strptime(timestamp, timestamp_format)
-
-        # Apply timezone offset if present
-        if tz_offset and tz_offset != "Z":
-            tz_offset_minutes = int(tz_offset[-2:]) + int(tz_offset[-5:-3]) * 60
-            timestamp = timestamp.replace(
-                tzinfo=timezone(timedelta(minutes=tz_offset_minutes))
-            )
-
-        return timestamp
-    else:
+    try:
+        timestamp = datetime.fromisoformat(timestamp_str[:-1])
+        return timestamp.replace(tzinfo=timezone.utc)
+    except ValueError:
         return None
 
 
