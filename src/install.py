@@ -3,7 +3,15 @@ import subprocess
 import re
 from colorama import Fore
 from config import print_stuff, config
-from shared import ask_yes_no, process_command, run_command, set_var, finish_node
+from shared import (
+    ask_yes_no,
+    process_command,
+    run_command,
+    set_var,
+    finish_node,
+    ask_for_wallet_password,
+    get_bytes_address,
+)
 
 # Setup print stuff from config class print_stuff
 print_whitespace = print_stuff.printWhitespace
@@ -88,11 +96,14 @@ def install_serv_node() -> None:
             f"* Would you like to create a wallet for your validator node? (y/n)"
         )
         if answer:
+            wallet_password = ask_for_wallet_password()
             print(Fore.WHITE)
             result = run_command(
-                f"{config.servnode} keys add {config.active_user}", print_output=True
+                f"yes {wallet_password} | {config.servnode} keys add {config.active_user}",
+                print_output=True,
             )
             if result:
+                set_address_vars(wallet_password)
                 print(
                     f"{Fore.YELLOW}* Backup your mnemonic phrase above before proceeding any further. Do not give your phrase away or lose it!{Fore.MAGENTA}\n*\n"
                 )
@@ -101,16 +112,18 @@ def install_serv_node() -> None:
                     f"* Error creating wallet, please try again or import a wallet instead."
                 )
                 finish_node()
-        
+
         else:
             answer = ask_yes_no(
                 f"* Skipping wallet creation, would you like to import a wallet now instead? (y/n)"
             )
             if answer:
+                wallet_password = ask_for_wallet_password()
                 run_command(
-                    f'{config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"',
+                    f'yes {wallet_password} | {config.servnode} keys add {config.active_user} --recover --algo="eth_secp256k1"',
                     print_output=True,
                 )
+                set_address_vars(wallet_password)
             else:
                 finish_node()
         # Service Configuration Stuff
@@ -138,5 +151,21 @@ def install_serv_node() -> None:
         subprocess.run("sudo systemctl enable servnode.service", shell=True, check=True)
         # Start service
         subprocess.run("sudo systemctl start servnode.service", shell=True, check=True)
+        result = run_command(f"{config.servnode} keys list", print_output=True)
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
+
+
+def set_address_vars(wallet_password) -> None:
+    address = run_command(
+        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a",
+        print_output=False,
+    )
+    set_var(config.dotenv_file, "SERV_WALLET_ADDRESS", address)
+    server_address = run_command(
+        f"yes {wallet_password} | {config.servnode} keys show {config.active_user} -a --bech val",
+        print_output=False,
+    )
+    set_var(config.dotenv_file, "SERV_SERVER_ADDRESS", server_address)
+    emv_address = get_bytes_address(address)
+    set_var(config.dotenv_file, "SERV_EMV_ADDRESS", emv_address)

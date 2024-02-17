@@ -3,6 +3,7 @@ import os
 import json
 import time
 import dotenv
+import getpass
 from os import environ
 from datetime import datetime, timezone
 from colorama import Fore
@@ -237,6 +238,7 @@ def display_node_info(node_status):
     else:
         print("* Failed to retrieve node status.")
 
+
 # check if a var exists in your .env file, unset and reset if exists to avoid bad stuff
 def set_var(env_file, key_name, update_name):
     if environ.get(key_name):
@@ -244,3 +246,27 @@ def set_var(env_file, key_name, update_name):
     dotenv.set_key(env_file, key_name, update_name)
     load_var_file(env_file)
     return
+
+
+def ask_for_wallet_password():
+    while True:
+        password = getpass.getpass("Enter your wallet password: ")
+        confirm_password = getpass.getpass("Confirm your wallet password: ")
+
+        if password == confirm_password:
+            return password
+        else:
+            print("Passwords do not match. Please try again.")
+
+
+def get_bytes_address(sx_address):
+    try:
+        result = subprocess.check_output(["./servnode", "convert-address", sx_address])
+        output_lines = result.decode("utf-8").splitlines()
+        for line in output_lines:
+            if line.startswith("Bytes:"):
+                return line.split(":")[1].strip()
+        return None
+    except subprocess.CalledProcessError:
+        print("Error executing the command.")
+        return None
