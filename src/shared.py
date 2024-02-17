@@ -101,3 +101,24 @@ def ask_yes_no(question: str) -> bool:
     if yes_no_answer.startswith("Y"):
         return True
     return False
+
+def process_command(command: str, capture_output: bool = False) -> str:
+    # Set stdout and stderr to subprocess.PIPE if capture_output is True
+    stdout_option = subprocess.PIPE if capture_output else None
+    stderr_option = subprocess.PIPE if capture_output else None
+
+    # Run the command
+    process = subprocess.Popen(command, shell=True, stdout=stdout_option, stderr=stderr_option)
+
+    # Capture the output and error if capture_output is True
+    output, error = process.communicate()
+
+    # Check for errors
+    if process.returncode != 0:
+        raise subprocess.CalledProcessError(returncode=process.returncode, cmd=command, output=output, stderr=error)
+
+    # Return output if capture_output is True
+    if capture_output:
+        return output.decode('utf-8')  # Assuming UTF-8 encoding for the output
+
+    return None  # Return None if capture_output is False
