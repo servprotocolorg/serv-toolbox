@@ -75,39 +75,7 @@ def install_serv_node() -> None:
         process_command(f"chmod +x {config.servnode}")
         print(f"* Created {config.serv_dir} directory & files")
         # open genesis.json and config.toml to read & update
-        short_name = input(
-            f"* Pick a short name to identify your validator node (Example: SuperNode): "
-        )
-        if short_name:
-            answer = ask_yes_no(
-                f"* You picked {short_name} as your validator short code name, is this correct? (y/n)"
-            )
-            if answer:
-                # Open file
-                with open(config.config_tmp_path, "r") as file:
-                    filedata = file.read()
-                # Update settings
-                filedata = filedata.replace(
-                    'moniker = "Serv-0"', f'moniker = "{short_name}"'
-                )
-                filedata = filedata.replace('log_level = "info"', 'log_level = "warn"')
-                # Save file
-                with open(config.config_tmp_path, "w") as file:
-                    file.write(filedata)
-                # Init network
-                process_command(
-                    f"{config.servnode} init {short_name} --chain-id serv_43970-1"
-                )
-                # Move custom files
-                process_command(f"mv {config.genesis_tmp_path} {config.serv_genesis}")
-                process_command(f"mv {config.config_tmp_path} {config.serv_conf}")
-                # Update chain-id
-                with open(config.serv_client, "r") as file:
-                    filedata = file.read()
-                filedata = filedata.replace(
-                    'chain-id = ""', 'chain-id = "serv_43970-1"'
-                )
-        print(f"* SERV Node installed at {config.serv_dir}")
+        get_short_name()
         print_stars()
         # Wallet Creation or Import
         print("* Creating/Importing SERV wallet")
@@ -151,15 +119,22 @@ def install_serv_node() -> None:
         # Service Configuration Stuff
         with open(config.servnode_service_file, "r") as file:
             filedata = file.read()
-        filedata = filedata.replace("User=servuser", f"User={config.active_user}")
-        filedata = filedata.replace(
-            "WorkingDirectory=/home/servuser/serv",
-            f"WorkingDirectory={config.serv_dir}",
-        )
-        filedata = filedata.replace(
-            "ExecStart=/home/servuser/serv/servnode start",
-            f"ExecStart={config.servnode} start",
-        )
+        if config.active_user == "root":
+            filedata = filedata.replace("User=servuser", "User=root")
+            filedata = filedata.replace(
+                "WorkingDirectory=/home/servuser/serv",
+                f"WorkingDirectory={config.serv_dir}",
+            )
+        else:
+            filedata = filedata.replace("User=servuser", f"User={config.active_user}")
+            filedata = filedata.replace(
+                "WorkingDirectory=/home/servuser/serv",
+                f"WorkingDirectory={config.serv_dir}",
+            )
+            filedata = filedata.replace(
+                "ExecStart=/home/servuser/serv/servnode start",
+                f"ExecStart={config.servnode} start",
+            )
         # Save file in /tmp as we need to be sudo to move it to /etc/systemd/system
         with open("/tmp/servnode.service", "w") as file:
             file.write(filedata)
@@ -178,3 +153,45 @@ def install_serv_node() -> None:
         )
     else:
         print(f"* {config.serv_dir} directory already exists, skipping!")
+
+
+def get_short_name() -> None:
+    while True:
+        short_name = input(
+            f"* Pick a short name to identify your validator node (Example: SuperNode): "
+        )
+        if not short_name:
+            print("* Please enter a non-empty short name.")
+            continue
+
+        answer = ask_yes_no(
+            f"* You picked {short_name} as your validator short code name, is this correct? (y/n)"
+        )
+
+        if answer:
+            setup_files(short_name)
+            break  # Exit the loop if everything is successful
+        else:
+            print("* Please pick a different short name.")
+
+
+def setup_files(short_name) -> None:
+    # Open file
+    with open(config.config_tmp_path, "r") as file:
+        filedata = file.read()
+    # Update settings
+    filedata = filedata.replace('moniker = "Serv-0"', f'moniker = "{short_name}"')
+    filedata = filedata.replace('log_level = "info"', 'log_level = "warn"')
+    # Save file
+    with open(config.config_tmp_path, "w") as file:
+        file.write(filedata)
+    # Init network
+    process_command(f"{config.servnode} init {short_name} --chain-id serv_43970-1")
+    # Move custom files
+    process_command(f"mv {config.genesis_tmp_path} {config.serv_genesis}")
+    process_command(f"mv {config.config_tmp_path} {config.serv_conf}")
+    # Update chain-id
+    with open(config.serv_client, "r") as file:
+        filedata = file.read()
+    filedata = filedata.replace('chain-id = ""', 'chain-id = "serv_43970-1"')
+    return
