@@ -65,12 +65,6 @@ def parse_flags(parser):
     )
 
     parser.add_argument(
-        "--installer",
-        action="store_true",
-        help="Will run the toolbox installer setup for mainnet or testnet.",
-    )
-
-    parser.add_argument(
         "--register",
         action="store_true",
         help="Will register your validator on chain after server is synced and deposit is made.",
@@ -82,18 +76,16 @@ def parse_flags(parser):
     # Add other args here
     if args.claim:
         # We'll do something here soon!
+        coming_soon()
         finish_node()
 
     if args.restart:
         restart_servnode_service()
         finish_node()
 
-    if args.installer:
-        # We'll do something here soon!
-        finish_node()
-
     if args.register:
         # We'll do something here soon!
+        coming_soon()
         finish_node()
 
     if args.stats:
@@ -107,9 +99,16 @@ def parse_flags(parser):
 
     if args.update:
         # We'll do something here soon!
+        coming_soon()
         finish_node()
 
     return
+
+
+# Coming Soon
+def coming_soon():
+    print(f"* This option isn't available yet, we'll have an update soon when it's ready!\n{string_stars()}")
+    input("* Press enter to return to the main menu.")
 
 
 # loader intro splash screen
