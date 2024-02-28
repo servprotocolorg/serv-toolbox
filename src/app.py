@@ -17,7 +17,7 @@ def app():
 
     # Run parser if flags added
     parser = argparse.ArgumentParser(
-        description="Serv Validator Toolbox - Help Menu by EasyNode.pro"
+        description="SERV Validator Toolbox - Help Menu by EasyNode.pro"
     )
     parse_flags(parser)
 
