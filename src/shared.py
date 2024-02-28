@@ -108,7 +108,7 @@ def parse_flags(parser):
 # Coming Soon
 def coming_soon():
     print(f"* This option isn't available yet, we'll have an update soon when it's ready!\n{string_stars()}")
-    input("* Press enter to return to the main menu.")
+    input("* Press enter to continue...")
 
 
 # loader intro splash screen
