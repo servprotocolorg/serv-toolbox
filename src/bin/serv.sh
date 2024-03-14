@@ -1,7 +1,7 @@
 #!/bin/bash
 HOME_DIR=$(echo ~)
 
-# Check if the harmony-toolbox directory exists
+# Check if the serv-toolbox directory exists
 if [ -d "$HOME_DIR/serv-toolbox" ]; then
   # If it exists, go into it and pull updates
   cd ~/serv-toolbox

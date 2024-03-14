@@ -133,7 +133,7 @@ def install_serv_node() -> None:
                 f"WorkingDirectory={config.serv_dir}",
             )
             filedata = filedata.replace(
-                "ExecStart=/home/servuser/serv/servnode start",
+                "ExecStart=/home/servuser/serv/cosmovisor start",
                 f"ExecStart={config.servnode} start",
             )
         # Save file in /tmp as we need to be sudo to move it to /etc/systemd/system
@@ -213,15 +213,26 @@ def install_cosmovisor() -> None:
     cosmovisor_dir = os.path.join(config.serv_dir, "cosmovisor")
     if not os.path.isdir(cosmovisor_dir):
         os.makedirs(cosmovisor_dir)
-        process_command(f"wget -O {cosmovisor_dir}/cosmovisor https://github.com/cosmos/cosmos-sdk/releases/download/v0.42.9/cosmovisor_{platform}_{arch}")
+        process_command(f"wget -O {cosmovisor_dir}/cosmovisor.tar.gz https://github.com/servprotocolorg/cosmos-sdk/releases/download/cosmovisor%2Fv1.0.0/cosmovisor-v1.0.0-linux-arm64.tar.gz")
+        process_command(f"tar -xvf {cosmovisor_dir}/cosmovisor.tar.gz -C {cosmovisor_dir}")
         process_command(f"chmod +x {cosmovisor_dir}/cosmovisor")
         print(f"* Created {cosmovisor_dir} directory & files")
+
+    # Create the additional directories
+    genesis_bin_dir = os.path.join(cosmovisor_dir, "genesis/bin")
+    upgrade1_bin_dir = os.path.join(cosmovisor_dir, "upgrade/bin")
+    os.makedirs(genesis_bin_dir, exist_ok=True)
+    os.makedirs(upgrade1_bin_dir, exist_ok=True)
+
+    # Download the servnode binary into the genesis bin folder
+    process_command(f"wget -O {genesis_bin_dir}/servnode https://rpc.serv.services/servnode")
+
     os.environ["DAEMON_HOME"] = config.serv_dir
     os.environ["DAEMON_NAME"] = "servnode"
     os.environ["DAEMON_ALLOW_DOWNLOAD_BINARIES"] = "true"
     os.environ["DAEMON_RESTART_AFTER_UPGRADE"] = "true"
-    result = run_command(f"{cosmovisor_dir}/cosmovisor version", print_output=True)
-    if result:
-        print("* Cosmovisor installed successfully")
-    else:
-        print("* Error installing Cosmovisor, please try again")
+    # result = run_command(f"{cosmovisor_dir}/cosmovisor version", print_output=True)
+    # if result:
+    #    print("* Cosmovisor installed successfully")
+    # else:
+    #    print("* Error installing Cosmovisor, please try again")
