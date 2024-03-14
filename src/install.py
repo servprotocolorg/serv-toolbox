@@ -29,7 +29,7 @@ def install_check() -> None:
         and os.path.isfile(config.serv_conf)
         and os.path.isdir(config.toolbox_location)
     ):
-        # Already installed, check for variables and return
+        # SERV Already installed, check for/collect variables, check for cosmovisor and return
         serv_wallet_address = os.environ.get("SERV_WALLET_ADDRESS")
         serv_server_address = os.environ.get("SERV_SERVER_ADDRESS")
         serv_evm_address = os.environ.get("SERV_EVM_ADDRESS")
@@ -194,4 +194,9 @@ def setup_files(short_name) -> None:
     with open(config.serv_client, "r") as file:
         filedata = file.read()
     filedata = filedata.replace('chain-id = ""', 'chain-id = "serv_43970-1"')
+    return
+
+
+def cosmovisor_check():
+    # Check for cosmovisor and install if not found
     return

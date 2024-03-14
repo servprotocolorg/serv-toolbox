@@ -8,7 +8,10 @@ from shared import (
     display_node_info,
     finish_node,
 )
-from install import install_check
+from install import (
+    install_check,
+    cosmovisor_check,
+    )
 
 
 def app():
@@ -26,6 +29,7 @@ def app():
 
     # Check Installation Status
     install_check()
+    cosmovisor_check()
 
     # Run stats cause why not atm?
     # Get node status
