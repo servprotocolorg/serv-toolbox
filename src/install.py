@@ -72,6 +72,7 @@ def install_serv_node() -> None:
         process_command(f"wget -O {config.servnode} rpc.serv.services/servnode")
         process_command(f"wget -O {config.genesis_tmp_path} rpc.serv.services/genesis")
         process_command(f"wget -O {config.config_tmp_path} rpc.serv.services/config")
+        
         process_command(f"chmod +x {config.servnode}")
         print(f"* Created {config.serv_dir} directory & files")
         # open genesis.json and config.toml to read & update
@@ -197,6 +198,30 @@ def setup_files(short_name) -> None:
     return
 
 
-def cosmovisor_check():
-    # Check for cosmovisor and install if not found
-    return
+def cosmovisor_check() -> None:
+    cosmovisor_dir = os.path.join(config.serv_dir, "cosmovisor")
+    if os.path.isdir(cosmovisor_dir) and os.path.isfile(os.path.join(cosmovisor_dir, "cosmovisor")):
+        # Cosmovisor already installed, return
+        print("* Cosmovisor is already installed.")
+        return
+    else:
+        # Not installed! Let's install it!
+        print("* Cosmovisor is not installed. Starting installation...")
+        install_cosmovisor()
+
+def install_cosmovisor() -> None:
+    cosmovisor_dir = os.path.join(config.serv_dir, "cosmovisor")
+    if not os.path.isdir(cosmovisor_dir):
+        os.makedirs(cosmovisor_dir)
+        process_command(f"wget -O {cosmovisor_dir}/cosmovisor https://github.com/cosmos/cosmos-sdk/releases/download/v0.42.9/cosmovisor_{platform}_{arch}")
+        process_command(f"chmod +x {cosmovisor_dir}/cosmovisor")
+        print(f"* Created {cosmovisor_dir} directory & files")
+    os.environ["DAEMON_HOME"] = config.serv_dir
+    os.environ["DAEMON_NAME"] = "servnode"
+    os.environ["DAEMON_ALLOW_DOWNLOAD_BINARIES"] = "true"
+    os.environ["DAEMON_RESTART_AFTER_UPGRADE"] = "true"
+    result = run_command(f"{cosmovisor_dir}/cosmovisor version", print_output=True)
+    if result:
+        print("* Cosmovisor installed successfully")
+    else:
+        print("* Error installing Cosmovisor, please try again")
